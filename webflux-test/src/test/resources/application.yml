@@ -1,0 +1,20 @@
+logging:
+  http:
+    web-flux:
+      # TODO: enable by regexp, add cache for checker
+      extended-logging-enabled: true
+    masked-headers:
+      - displayedName: "Authorization"
+        sensitiveDataPattern: "Bearer.*"
+        substitutionValue: "token"
+      - displayedName: "Auth-Info"
+        sensitiveDataPattern: "password.*"
+        substitutionValue: "password"
+    masked-query-params:
+      - displayedName: "param1"
+        sensitiveDataPattern: ".*"
+        substitutionValue: "***"
+    body:
+      masked:
+        - pattern: '"accessToken":".*"'
+          substitutionValue: '"accessToken":"masked"'

@@ -1,0 +1,3 @@
+rootProject.name = 'ginger-log'
+include 'logger'
+include 'webflux-test'
