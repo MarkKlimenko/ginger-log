@@ -16,5 +16,7 @@ logging:
         substitutionValue: "***"
     body:
       masked:
-        - pattern: '"accessToken":".*"'
-          substitutionValue: '"accessToken":"masked"'
+        - pattern: '"accessToken":".*?"'
+          substitutionValue: '"accessToken":"maskedAccessToken"'
+        - pattern: '"refreshToken":".*?"'
+          substitutionValue: '"refreshToken":"maskedRefreshToken"'

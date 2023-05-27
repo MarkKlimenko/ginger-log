@@ -16,7 +16,7 @@ class QueryParametersExtractor {
 
     fun extractSpecificQueries(
         request: ServerHttpRequest,
-        loggedEntities: List<LoggingProperties.HttpLoggingConfig.LoggedEntity>,
+        loggedEntities: List<LoggingProperties.LoggedEntity>,
     ): Map<String, String> {
         return extractSpecificParameters(request.queryParams, loggedEntities)
     }

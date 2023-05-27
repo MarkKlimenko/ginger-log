@@ -1,13 +1,8 @@
 package com.markklim.libs.ginger
 
-import com.markklim.libs.ginger.properties.BODY
-import com.markklim.libs.ginger.properties.EMPTY_VALUE
-import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.properties.RESPONSE_CODE
-import com.markklim.libs.ginger.properties.RESPONSE_INFO_TAG
-import com.markklim.libs.ginger.properties.RESPONSE_TIME
+import com.markklim.libs.ginger.extractor.ParametersExtractor
+import com.markklim.libs.ginger.properties.*
 import com.markklim.libs.ginger.state.RequestLoggingState
-import com.markklim.libs.ginger.utils.getBodyString
 import com.markklim.libs.ginger.utils.isBinaryContent
 import com.markklim.libs.ginger.utils.isNotEmpty
 import com.markklim.libs.ginger.utils.log
@@ -23,10 +18,11 @@ import reactor.core.publisher.toFlux
 import reactor.util.context.ContextView
 
 class ServerHttpResponseLoggingDecorator(
-    exchange: ServerWebExchange,
-    private val loggingProperties: LoggingProperties.HttpLoggingControlConfig,
-    private val requestLoggingState: RequestLoggingState,
-    private val logFieldsMap: Map<String, Any>
+        exchange: ServerWebExchange,
+        private val loggingProperties: LoggingProperties.HttpWebfluxLoggingControlConfig,
+        private val requestLoggingState: RequestLoggingState,
+        private val logFieldsMap: Map<String, Any>,
+        private val parametersExtractor: ParametersExtractor,
 ) : ServerHttpResponseDecorator(exchange.response) {
 
     private val log: Logger = LoggerFactory.getLogger(LoggingFilter::class.java)
@@ -36,12 +32,12 @@ class ServerHttpResponseLoggingDecorator(
         return if (log.isInfoEnabled || (log.isErrorEnabled && delegate.statusCode?.isError == true)) {
             if (isExtendedLoggingEnabled()) {
                 super.writeWith(DataBufferUtils.join(body)
-                    .transformDeferredContextual { dataBufferMono: Mono<DataBuffer?>, _: ContextView? ->
-                        dataBufferMono
-                            .doOnNext {
-                                logResponseBody(it)
-                            }
-                    }
+                        .transformDeferredContextual { dataBufferMono: Mono<DataBuffer?>, _: ContextView? ->
+                            dataBufferMono
+                                    .doOnNext {
+                                        logResponseBody(it)
+                                    }
+                        }
                 )
             } else {
                 logResponseBody(null)
@@ -60,9 +56,9 @@ class ServerHttpResponseLoggingDecorator(
         logFieldsResponseMap[RESPONSE_TIME] = requestLoggingState.timeSpent()
 
         if (dataBuffer != null && dataBuffer.isNotEmpty()) {
-            logFieldsResponseMap[BODY] = getBodyString(
-                dataBuffer,
-                loggingProperties
+            logFieldsResponseMap[BODY] = parametersExtractor.getBodyField(
+                    dataBuffer,
+                    loggingProperties
             )
         }
 
@@ -76,6 +72,6 @@ class ServerHttpResponseLoggingDecorator(
         requestLoggingState.responseLogged = true
     }
 
-    private fun isExtendedLoggingEnabled() = loggingProperties.isExtendedLoggingEnabled
-        && (!delegate.isBinaryContent() || loggingProperties.isBinaryContentLoggingEnabled)
+    private fun isExtendedLoggingEnabled() = loggingProperties.extendedLoggingEnabled
+            && (!delegate.isBinaryContent() || loggingProperties.binaryContentLoggingEnabled)
 }

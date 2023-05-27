@@ -7,7 +7,7 @@ import org.springframework.util.MultiValueMap
 
 fun extractSpecificParameters(
     attributes: MultiValueMap<String, String>,
-    entities: List<LoggingProperties.HttpLoggingConfig.LoggedEntity>,
+    entities: List<LoggingProperties.LoggedEntity>,
 ): Map<String, String> {
     val logFieldsMap = mutableMapOf<String, String>()
     if (attributes is HttpHeaders) {
@@ -46,9 +46,9 @@ fun extractStringFromList(strings: List<String>): String {
 }
 
 fun filterLoggedEntities(
-    loggedEntities: List<LoggingProperties.HttpLoggingConfig.LoggedEntity>,
+    loggedEntities: List<LoggingProperties.LoggedEntity>,
     excludedEntityNames: List<String>
-): List<LoggingProperties.HttpLoggingConfig.LoggedEntity> {
+): List<LoggingProperties.LoggedEntity> {
     return loggedEntities
         .filter { loggedEntity ->
             excludedEntityNames.none { excludedName ->

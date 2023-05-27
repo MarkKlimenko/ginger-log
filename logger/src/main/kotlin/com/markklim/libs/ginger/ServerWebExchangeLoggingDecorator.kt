@@ -1,5 +1,6 @@
 package com.markklim.libs.ginger
 
+import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.state.RequestLoggingState
 import org.springframework.core.ResolvableType
@@ -21,21 +22,24 @@ import org.springframework.web.server.ServerWebExchangeDecorator
 import reactor.core.publisher.Mono
 
 class ServerWebExchangeLoggingDecorator(
-    delegate: ServerWebExchange,
-    private val loggingProperties: LoggingProperties.HttpLoggingControlConfig,
-    private val serverCodecConfigurer: ServerCodecConfigurer,
-    logFieldsMap: Map<String, Any>,
-    requestLoggingState: RequestLoggingState
+        delegate: ServerWebExchange,
+        private val loggingProperties: LoggingProperties.HttpWebfluxLoggingControlConfig,
+        private val serverCodecConfigurer: ServerCodecConfigurer,
+        logFieldsMap: Map<String, Any>,
+        requestLoggingState: RequestLoggingState,
+        parametersExtractor: ParametersExtractor,
 ) : ServerWebExchangeDecorator(delegate) {
     private val requestDecorator: ServerHttpRequestDecorator =
-        ServerHttpRequestLoggingDecorator(delegate.request, loggingProperties)
+            ServerHttpRequestLoggingDecorator(
+                    delegate.request, loggingProperties
+            )
     private val responseDecorator: ServerHttpResponseDecorator =
-        ServerHttpResponseLoggingDecorator(
-            delegate, loggingProperties, requestLoggingState, logFieldsMap
-        )
+            ServerHttpResponseLoggingDecorator(
+                    delegate, loggingProperties, requestLoggingState, logFieldsMap, parametersExtractor
+            )
 
     private val multipartData = lazy {
-        if (loggingProperties.isExtendedLoggingEnabled) {
+        if (loggingProperties.extendedLoggingEnabled) {
             computeMultipartMono().cache()
         } else {
             super.getMultipartData()
@@ -60,16 +64,16 @@ class ServerWebExchangeLoggingDecorator(
         try {
             if (MediaType.MULTIPART_FORM_DATA.isCompatibleWith(contentType)) {
                 return serverCodecConfigurer.readers.stream()
-                    .filter { reader -> reader.canRead(MULTIPART_DATA_TYPE, MediaType.MULTIPART_FORM_DATA) }.findFirst()
-                    .orElseThrow { IllegalStateException("No HttpMessageReader for ${MediaType.MULTIPART_FORM_DATA.type}") }
-                    .let { it as HttpMessageReader<MultiValueMap<String, Part>> }
-                    .run {
-                        readMono(
-                            MULTIPART_DATA_TYPE,
-                            requestDecorator,
-                            Hints.from(Hints.LOG_PREFIX_HINT, delegate.logPrefix)
-                        )
-                    }
+                        .filter { reader -> reader.canRead(MULTIPART_DATA_TYPE, MediaType.MULTIPART_FORM_DATA) }.findFirst()
+                        .orElseThrow { IllegalStateException("No HttpMessageReader for ${MediaType.MULTIPART_FORM_DATA.type}") }
+                        .let { it as HttpMessageReader<MultiValueMap<String, Part>> }
+                        .run {
+                            readMono(
+                                    MULTIPART_DATA_TYPE,
+                                    requestDecorator,
+                                    Hints.from(Hints.LOG_PREFIX_HINT, delegate.logPrefix)
+                            )
+                        }
             }
         } catch (_: InvalidMediaTypeException) {
             return EMPTY_MULTIPART_DATA;
@@ -79,10 +83,10 @@ class ServerWebExchangeLoggingDecorator(
 
     companion object {
         private val MULTIPART_DATA_TYPE = ResolvableType.forClassWithGenerics(
-            MultiValueMap::class.java, String::class.java, Part::class.java
+                MultiValueMap::class.java, String::class.java, Part::class.java
         )
         private val EMPTY_MULTIPART_DATA =
-            Mono.just(CollectionUtils.unmodifiableMultiValueMap(LinkedMultiValueMap<String, Part>(0))).cache()
+                Mono.just(CollectionUtils.unmodifiableMultiValueMap(LinkedMultiValueMap<String, Part>(0))).cache()
 
     }
 }

@@ -1,5 +1,6 @@
 package com.markklim.libs.ginger.test.webflux
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 
 class ControllerTest : WebIntegrationTest() {
@@ -26,5 +27,7 @@ class ControllerTest : WebIntegrationTest() {
             .exchange()
             .expectStatus()
             .isOk
+            .expectBody()
+            .json(ObjectMapper().writeValueAsString(entity))
     }
 }

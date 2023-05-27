@@ -11,36 +11,51 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.PropertySource
 import org.springframework.http.codec.ServerCodecConfigurer
 
 @Configuration
 @EnableConfigurationProperties(LoggingProperties::class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnProperty(name = ["logging.http.web-flux.enabled"], matchIfMissing = true)
+//@PropertySource("classpath:logger-application.properties")
 class WebfluxLoggingAutoConfiguration {
-    //@Bean
-    //@ConditionalOnMissingBean(ServerCodecConfigurer::class)
-    //fun serverCodecConfigurer() = ServerCodecConfigurer.create()
 
     @Bean
+    @ConditionalOnMissingBean(HeaderParametersExtractor::class)
+    fun headerParametersExtractor() = HeaderParametersExtractor()
+
+    @Bean
+    @ConditionalOnMissingBean(QueryParametersExtractor::class)
+    fun queryParamsExtractor() = QueryParametersExtractor()
+
+    @Bean
+    @ConditionalOnMissingBean(ParametersExtractor::class)
     fun parametersExtractor(
-        loggingProperties: LoggingProperties,
-        headerParamsExtractor: HeaderParametersExtractor,
-        queryParamsExtractor: QueryParametersExtractor,
-        parametersMasker: ParametersMasker
-    ) = ParametersExtractor()
+            loggingProperties: LoggingProperties,
+            headerParamsExtractor: HeaderParametersExtractor,
+            queryParamsExtractor: QueryParametersExtractor,
+            parametersMasker: ParametersMasker
+    ) = ParametersExtractor(
+            loggingProperties,
+            headerParamsExtractor,
+            queryParamsExtractor,
+            parametersMasker,
+    )
 
     @Bean
     @ConditionalOnMissingBean(ParametersMasker::class)
     fun parametersMasker() = ParametersMasker()
 
     @Bean
+    @ConditionalOnMissingBean(LoggingFilter::class)
     fun loggingFilter(
-        loggingProperties: LoggingProperties,
-        serverCodecConfigurer: ServerCodecConfigurer
+            loggingProperties: LoggingProperties,
+            serverCodecConfigurer: ServerCodecConfigurer,
+            parametersExtractor: ParametersExtractor
     ) = LoggingFilter(
-        loggingProperties,
-        parametersExtractor,
-        serverCodecConfigurer
+            loggingProperties,
+            parametersExtractor,
+            serverCodecConfigurer,
     )
 }

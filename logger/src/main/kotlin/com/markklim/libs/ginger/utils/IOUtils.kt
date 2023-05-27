@@ -18,21 +18,3 @@ fun bufferBytes(source: DataBuffer, destinationRef: AtomicReference<DefaultDataB
         source.readPosition(0)
     }
 }
-
-fun getBodyString(
-    buffer: DataBuffer,
-    loggingProperties: LoggingProperties.HttpLoggingControlConfig
-): String {
-    val threshold: Int? = loggingProperties.threshold?.toBytes()?.toInt()
-    val readableByteCount: Int = buffer.readableByteCount()
-    val isCutOff: Boolean = threshold != null && readableByteCount > threshold
-    val bytesCount: Int = Integer.min(threshold ?: readableByteCount, readableByteCount)
-
-    var body = buffer.toString(buffer.readPosition(), bytesCount, StandardCharsets.UTF_8)
-
-    if (isCutOff) {
-        body += " [...]"
-    }
-
-    return body
-}

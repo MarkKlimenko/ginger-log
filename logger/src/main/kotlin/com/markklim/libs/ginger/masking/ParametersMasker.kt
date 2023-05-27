@@ -4,7 +4,7 @@ import com.markklim.libs.ginger.properties.LoggingProperties
 
 class ParametersMasker {
     fun maskParameters(params: Map<String, Any>,
-                              rules: List<LoggingProperties.HttpLoggingConfig.MaskedEntity>): Map<String, Any> {
+                              rules: List<LoggingProperties.MaskedEntity>): Map<String, Any> {
         return params.mapValues {
 
             // TODO: each by patterns except of values
