@@ -1,21 +1,19 @@
 package com.markklim.libs.ginger.extractor.specific
 
-import com.markklim.libs.ginger.extractor.utils.extractSpecificParameters
 import com.markklim.libs.ginger.extractor.utils.extractStringFromList
-import com.markklim.libs.ginger.extractor.utils.filterLoggedEntities
-import com.markklim.libs.ginger.properties.LoggingProperties
 import org.springframework.http.server.reactive.ServerHttpRequest
 
 class HeaderParametersExtractor {
 
-    fun extractAllHeaders(request: ServerHttpRequest): Map<String, String> {
+    fun extractHeaders(request: ServerHttpRequest): Map<String, String> {
         return request.headers.mapValues { extractStringFromList(it.value) }
+
+        // TODO: mask here
     }
 
-    fun extractSpecificHeaders(
+    /*fun extractSpecificHeaders(
         request: ServerHttpRequest,
-        loggedEntities: List<LoggingProperties.LoggedEntity>,
-        excludedEntityNames: List<String>
+        includeOrExcludePatterns: LoggingProperties.Patterns,
     ): Map<String, String> {
         return if (loggedEntities.isEmpty()) {
             this.extractAllHeaders(request)
@@ -23,5 +21,5 @@ class HeaderParametersExtractor {
         } else {
             extractSpecificParameters(request.headers, filterLoggedEntities(loggedEntities, excludedEntityNames))
         }
-    }
+    }*/
 }

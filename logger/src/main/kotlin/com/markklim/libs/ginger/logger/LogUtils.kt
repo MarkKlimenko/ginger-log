@@ -1,6 +1,6 @@
 @file:JvmName("LogUtils")
 
-package com.markklim.libs.ginger.utils
+package com.markklim.libs.ginger.logger
 
 import org.slf4j.Logger
 import org.slf4j.Marker

@@ -11,50 +11,58 @@ import java.util.regex.Pattern
 @ConstructorBinding
 @Validated
 data class LoggingProperties(
-        val http: HttpLoggingConfig = HttpLoggingConfig()
+    val http: HttpLogging = HttpLogging()
 ) {
-    data class HttpLoggingConfig(
-        val ignoredUris: List<Regex> = emptyList(),
-        val ignoredContentTypes: List<String> = emptyList(),
-
-        val excludedHeaders: List<String> = emptyList(),
-        val loggedHeaders: List<LoggedEntity> = emptyList(),
-        val maskedHeaders: List<MaskedEntity> = emptyList(),
-
-        val loggedQueryParams: List<LoggedEntity> = emptyList(),
-        val maskedQueryParams: List<MaskedEntity> = emptyList(),
-
-        val body: BodySettings = BodySettings(),
-
-        val webFlux: HttpWebfluxLoggingControlConfig = HttpWebfluxLoggingControlConfig(),
-    )
-
-    data class LoggedEntity(
-            val actualName: String,
-            val displayedName: String
-    )
-
-    data class MaskedEntity(
-            val displayedName: String,
-            val sensitiveDataPattern: Pattern,
-            val substitutionValue: String
-    )
-
-    data class BodySettings(
-            val masked: List<MaskedBodyEntity> = emptyList()
-    )
-
-    data class MaskedBodyEntity(
-        val pattern: Pattern,
-        val substitutionValue: String
-    )
-
-    data class HttpWebfluxLoggingControlConfig(
+    data class HttpLogging(
         val enabled: Boolean = true,
         val extendedLoggingEnabled: Boolean = false,
         val clientErrorsLevel: Level = Level.DEBUG,
 
-        val binaryContentLoggingEnabled: Boolean = false,
+        // TODO: add caching for this uris (do not check query params)
+        val uris: Patterns = Patterns(),
+        val contentTypes: Patterns = Patterns(),
+        val methods: Patterns = Patterns(),
+
+        val headers: LoggedEntitySettings = LoggedEntitySettings(),
+        val queryParams: LoggedEntitySettings = LoggedEntitySettings(),
+        val body: LoggedBodySettings = LoggedBodySettings(),
+    )
+
+    data class LoggedEntitySettings(
+        val properties: EntityPropertiesSettings = EntityPropertiesSettings(),
+    ) {
+        data class EntityPropertiesSettings(
+            val include: List<Pattern> = emptyList(),
+            val exclude: List<Pattern> = emptyList(),
+            val masked: List<MaskedPropertyEntity> = emptyList(),
+        )
+
+        data class MaskedPropertyEntity(
+            val property: String,
+            val valuePattern: Pattern?,
+            val substitutionValue: String
+        )
+    }
+
+    data class LoggedBodySettings(
+        val uris: Patterns = Patterns(),
+        val binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
         val threshold: DataSize? = null,
+        val masked: List<MaskedBodyEntity> = emptyList()
+    ) {
+        data class MaskedBodyEntity(
+            val pattern: Pattern,
+            val substitutionValue: String
+        )
+    }
+
+    enum class BinaryContentLoggingStatus {
+        ENABLED,
+        DISABLED
+    }
+
+    data class Patterns(
+        val include: List<Pattern> = emptyList(),
+        val exclude: List<Pattern> = emptyList(),
     )
 }

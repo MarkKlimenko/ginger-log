@@ -16,13 +16,14 @@ class ControllerTest : WebIntegrationTest() {
 
         webTestClient.post()
             .uri{uriFunction ->
-                uriFunction.path("/api")
+                uriFunction.path("/api/test1")
                     .queryParam("param1", "value secret")
                     .queryParam("param2", "value ok")
                     .build()
             }
             .header("Authorization", "Bearer ijfnvoifvbvbvocinj")
             .header("Auth-Info", "info info")
+            .header("Content-Type", "application/json")
             .bodyValue(entity)
             .exchange()
             .expectStatus()

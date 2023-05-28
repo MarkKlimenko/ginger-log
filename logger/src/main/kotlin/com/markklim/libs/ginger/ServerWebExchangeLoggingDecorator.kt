@@ -1,6 +1,9 @@
 package com.markklim.libs.ginger
 
+import com.markklim.libs.ginger.dao.CommonLogArgs
+import com.markklim.libs.ginger.dao.RequestLogArgs
 import com.markklim.libs.ginger.extractor.ParametersExtractor
+import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.state.RequestLoggingState
 import org.springframework.core.ResolvableType
@@ -22,12 +25,13 @@ import org.springframework.web.server.ServerWebExchangeDecorator
 import reactor.core.publisher.Mono
 
 class ServerWebExchangeLoggingDecorator(
-        delegate: ServerWebExchange,
-        private val loggingProperties: LoggingProperties.HttpWebfluxLoggingControlConfig,
-        private val serverCodecConfigurer: ServerCodecConfigurer,
-        logFieldsMap: Map<String, Any>,
-        requestLoggingState: RequestLoggingState,
-        parametersExtractor: ParametersExtractor,
+    delegate: ServerWebExchange,
+    private val loggingProperties: LoggingProperties.HttpLogging,
+    private val serverCodecConfigurer: ServerCodecConfigurer,
+    commonLogArgs: CommonLogArgs,
+    requestLoggingState: RequestLoggingState,
+    parametersExtractor: ParametersExtractor,
+    logger: JsonLogger
 ) : ServerWebExchangeDecorator(delegate) {
     private val requestDecorator: ServerHttpRequestDecorator =
             ServerHttpRequestLoggingDecorator(
@@ -35,7 +39,7 @@ class ServerWebExchangeLoggingDecorator(
             )
     private val responseDecorator: ServerHttpResponseDecorator =
             ServerHttpResponseLoggingDecorator(
-                    delegate, loggingProperties, requestLoggingState, logFieldsMap, parametersExtractor
+                    delegate, loggingProperties, requestLoggingState, commonLogArgs, parametersExtractor, logger
             )
 
     private val multipartData = lazy {

@@ -1,6 +1,11 @@
 package com.markklim.libs.ginger
 
+import com.markklim.libs.ginger.dao.CommonLogArgs
+import com.markklim.libs.ginger.dao.RequestLogArgs
+import com.markklim.libs.ginger.dao.ResponseLogArgs
+import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
+import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.*
 import com.markklim.libs.ginger.state.RequestLoggingState
 import com.markklim.libs.ginger.utils.formattedBody
@@ -9,136 +14,121 @@ import com.markklim.libs.ginger.utils.isMultipart
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.codec.ServerCodecConfigurer
-import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
 class LoggingFilter(
-        private val loggingProperties: LoggingProperties,
-        private val parametersExtractor: ParametersExtractor,
-        private val serverCodecConfigurer: ServerCodecConfigurer
+    private val loggingProperties: LoggingProperties,
+    private val parametersExtractor: ParametersExtractor,
+    private val serverCodecConfigurer: ServerCodecConfigurer,
+    private val loggingDecisionComponent: LoggingDecisionComponent,
+    private val logger: JsonLogger
 ) : WebFilter {
 
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
-
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val request = exchange.request
-        val requestUri = request.path.pathWithinApplication().value()
-
-        return when (isLoggingAllowed()) {
-            true -> logRequestResponse(request, requestUri, chain, exchange)
+    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
+        when (loggingDecisionComponent.isLoggingAllowed(exchange)) {
+            true -> logRequestResponse(exchange, chain)
             false -> chain.filter(exchange)
         }
-    }
-
-    private fun isLoggingAllowed(): Boolean {
-        // TODO: request: ServerHttpRequest
-        // loggingProperties.http.isUriAllowedForLogging(request.path.pathWithinApplication().value())
-        val isUriAllowedForLogging = true
-
-        // TODO: val contentType = request.headers.getFirst(HttpHeaders.CONTENT_TYPE)
-        // loggingProperties.http.isContentTypeAllowedForLogging(contentType)
-        val isContentTypeAllowedForLogging = true
-
-        return log.isInfoEnabled && isUriAllowedForLogging && isContentTypeAllowedForLogging
-    }
 
     private fun logRequestResponse(
-            request: ServerHttpRequest,
-            requestUri: String,
-            chain: WebFilterChain,
-            exchange: ServerWebExchange
+        exchange: ServerWebExchange,
+        chain: WebFilterChain,
     ): Mono<Void> {
         // TODO: add just common info
-        val logFieldsMap: Map<String, Any> = parametersExtractor.getCommonFields(request, requestUri)
-        val webFluxProperties = loggingProperties.http.webFlux
+        val commonLogArgs: CommonLogArgs = parametersExtractor.getCommonFields(exchange)
         val requestLoggingState = RequestLoggingState()
-        requestLoggingState.startTime = requestLoggingState.clock.millis()
+
         val decoratedExchange = ServerWebExchangeLoggingDecorator(
-                exchange,
-                webFluxProperties,
-                serverCodecConfigurer,
-                logFieldsMap,
-                requestLoggingState,
-                parametersExtractor
+            exchange,
+            loggingProperties.http,
+            serverCodecConfigurer,
+            commonLogArgs,
+            requestLoggingState,
+            parametersExtractor,
+            logger
         )
         // is it required?
         //exchange.attributes[loggingProperties.http.webFlux.decoratedExchangeAttributeName] = decoratedExchange
 
-        return logRequestBody(decoratedExchange, logFieldsMap)
-                .then(chain.filter(decoratedExchange)
-                        .doAfterTerminate {
-                            logResponseFinally(requestLoggingState, logFieldsMap, decoratedExchange)
-                        }
-                )
+        return logRequestBody(decoratedExchange, commonLogArgs)
+            .then(chain.filter(decoratedExchange)
+                .doAfterTerminate {
+                    logResponseFinally(requestLoggingState, commonLogArgs, decoratedExchange)
+                }
+            )
     }
 
     private fun logRequestBody(
-            decorator: ServerWebExchangeLoggingDecorator,
-            logFieldsMap: Map<String, Any>,
+        decorator: ServerWebExchangeLoggingDecorator,
+        commonLogArgs: CommonLogArgs,
     ): Mono<Any> {
-        val logFieldsRequestMap: MutableMap<String, Any> = logFieldsMap.toMutableMap()
-        logFieldsRequestMap.putAll(parametersExtractor.getHeadersFields(decorator.request))
-        logFieldsRequestMap.putAll(parametersExtractor.getQueryParamsFields(decorator.request))
+        val logArgs = RequestLogArgs (
+            common = commonLogArgs,
+            headers = parametersExtractor.getHeadersFields(decorator.request),
+            queryParams = parametersExtractor.getQueryParamsFields(decorator.request),
+        )
 
-        val webFluxProps = loggingProperties.http.webFlux
+        val httpProperties: LoggingProperties.HttpLogging = loggingProperties.http
 
-        if (webFluxProps.extendedLoggingEnabled
-                && log.isInfoEnabled
-                && (!decorator.request.isBinaryContent() || webFluxProps.binaryContentLoggingEnabled)
+        if (httpProperties.extendedLoggingEnabled
+            && logger.isInfoEnabled()
+            && (!decorator.request.isBinaryContent()
+                || httpProperties.body.binaryContentLogging == LoggingProperties.BinaryContentLoggingStatus.ENABLED)
         ) {
             return if (decorator.request.isMultipart()) {
                 decorator.multipartData.flatMap { multiPartData ->
-                    multiPartData.formattedBody(webFluxProps.binaryContentLoggingEnabled)
-                            .doOnNext {
-                                logFieldsRequestMap[BODY_MULTIPART] = parametersExtractor.getBodyField(it)
+                    multiPartData.formattedBody(httpProperties.body.binaryContentLogging == LoggingProperties.BinaryContentLoggingStatus.ENABLED)
+                        .doOnNext {
+                            logArgs.body = parametersExtractor.getBodyField(it)
 
-                                log.info(REQUEST_INFO_TAG, logFieldsRequestMap)
-                            }
+                            logger.info(REQUEST_INFO_TAG, logArgs)
+                        }
                 }.switchIfEmpty(Mono.defer {
-                    log.info(REQUEST_INFO_TAG, logFieldsRequestMap)
+                    logger.info(REQUEST_INFO_TAG, logArgs)
                     Mono.empty()
                 }).then(Mono.empty())
             } else {
                 decorator.request.body
-                        .doOnNext {
-                            val body: String = parametersExtractor.getBodyField(
-                                    it,
-                                    loggingProperties.http.webFlux
-                            )
-                            logFieldsRequestMap[BODY] = body
+                    .doOnNext {
+                        val body: String = parametersExtractor.getBodyField(
+                            it,
+                            loggingProperties.http
+                        )
+                        logArgs.body = body
 
-                            log.info(REQUEST_INFO_TAG, logFieldsRequestMap)
-                        }
-                        .switchIfEmpty(Mono.defer {
-                            log.info(REQUEST_INFO_TAG, logFieldsRequestMap)
-                            Mono.empty()
-                        })
-                        .then(Mono.empty())
+                        logger.info(REQUEST_INFO_TAG, logArgs)
+                    }
+                    .switchIfEmpty(Mono.defer {
+                        logger.info(REQUEST_INFO_TAG, logArgs)
+                        Mono.empty()
+                    })
+                    .then(Mono.empty())
             }
         }
 
-        log.info("Server request: $logFieldsMap")
+        logger.info("Server request: $logArgs")
         return Mono.empty()
     }
 
     private fun logResponseFinally(
-            requestLoggingState: RequestLoggingState,
-            logFieldsMap: Map<String, Any>,
-            exchange: ServerWebExchange
+        requestLoggingState: RequestLoggingState,
+        commonLogArgs: CommonLogArgs,
+        exchange: ServerWebExchange
     ) {
         if (!requestLoggingState.responseLogged) {
-            val logFieldsResponseMap: MutableMap<String, Any> = logFieldsMap.toMutableMap()
-
-            logFieldsResponseMap[RESPONSE_CODE] = exchange.response.statusCode?.value() ?: EMPTY_VALUE
-            logFieldsResponseMap[RESPONSE_TIME] = requestLoggingState.timeSpent()
+            val logArgs = ResponseLogArgs(
+                common = commonLogArgs,
+                code = parametersExtractor.getResponseStatusCode(exchange),
+                timeSpent = requestLoggingState.timeSpent()
+            )
 
             if (exchange.response.statusCode?.isError == true) {
-                log.error(RESPONSE_INFO_TAG, logFieldsResponseMap)
+                logger.error(RESPONSE_INFO_TAG, logArgs)
             } else {
-                log.info(RESPONSE_INFO_TAG, logFieldsResponseMap)
+                logger.info(RESPONSE_INFO_TAG, logArgs)
             }
         }
     }

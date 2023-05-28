@@ -10,7 +10,7 @@ import reactor.core.publisher.toFlux
 
 class ServerHttpRequestLoggingDecorator(
     delegate: ServerHttpRequest,
-    loggingProperties: LoggingProperties.HttpWebfluxLoggingControlConfig
+    loggingProperties: LoggingProperties.HttpLogging
 ) : ServerHttpRequestDecorator(delegate) {
 
     override fun getBody(): Flux<DataBuffer> {

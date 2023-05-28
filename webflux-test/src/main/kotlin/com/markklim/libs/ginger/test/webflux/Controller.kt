@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api")
 class Controller {
 
-    @PostMapping
-    suspend fun findFeatureToggles(
+    @PostMapping("test1")
+    suspend fun test1(
         @RequestBody request: Entity
     ): Entity {
         return request

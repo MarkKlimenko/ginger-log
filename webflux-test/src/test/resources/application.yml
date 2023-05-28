@@ -1,20 +1,50 @@
 logging:
   http:
-    web-flux:
-      # TODO: enable by regexp, add cache for checker
-      extended-logging-enabled: true
-    masked-headers:
-      - displayedName: "Authorization"
-        sensitiveDataPattern: "Bearer.*"
-        substitutionValue: "token"
-      - displayedName: "Auth-Info"
-        sensitiveDataPattern: "password.*"
-        substitutionValue: "password"
-    masked-query-params:
-      - displayedName: "param1"
-        sensitiveDataPattern: ".*"
-        substitutionValue: "***"
+    extended-logging-enabled: true
+    client-errors-level: INFO
+    uris:
+      include:
+        - "/api/.*"
+      exclude:
+        - "/service/status"
+    content-types:
+      include:
+        - "application/json"
+      exclude:
+        - "application/octet-stream"
+    methods:
+      exclude:
+        - "OPTIONAL"
+    headers:
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+        masked:
+          - property: "Authorization"
+            substitution-value: "token"
+          - property: "Auth-Info"
+            value-pattern: "password.*"
+            substitution-value: "password"
+    query-params:
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+        masked:
+          - property: "param1"
+            value-pattern: ".*"
+            substitution-value: "***"
     body:
+      uris:
+        include:
+          - "api/v1/.*"
+        exclude:
+          - "api/v2/.*"
+      binary-content-logging: "ENABLED"
+      threshold: "1KB"
       masked:
         - pattern: '"accessToken":".*?"'
           substitutionValue: '"accessToken":"maskedAccessToken"'

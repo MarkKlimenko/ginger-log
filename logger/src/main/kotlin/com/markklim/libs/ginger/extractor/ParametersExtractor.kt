@@ -1,15 +1,17 @@
 package com.markklim.libs.ginger.extractor
 
+import com.markklim.libs.ginger.dao.CommonLogArgs
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.properties.REQUEST_METHOD
-import com.markklim.libs.ginger.properties.REQUEST_URI
+import com.markklim.libs.ginger.utils.getRequestMethod
+import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.stereotype.Component
+import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.web.server.ServerWebExchange
 import java.nio.charset.StandardCharsets
 
 class ParametersExtractor(
@@ -18,68 +20,34 @@ class ParametersExtractor(
     private val queryParamsExtractor: QueryParametersExtractor,
     private val parametersMasker: ParametersMasker,
 ) {
-    fun getCommonFields(request: ServerHttpRequest, requestUri: String): Map<String, Any> {
-        val logFieldsMap = mutableMapOf<String, Any>()
-        logFieldsMap[REQUEST_METHOD] = request.method?.toString() ?: EMPTY_VALUE
-        logFieldsMap[REQUEST_URI] = requestUri
-        return logFieldsMap
-    }
-
-    fun getHeadersFields(request: ServerHttpRequest): Map<String, Any> {
-        val logFieldsMap = mutableMapOf<String, Any>()
-
-        logFieldsMap.putAll(
-            if (loggingProperties.http.loggedHeaders.isEmpty() && loggingProperties.http.excludedHeaders.isEmpty()) {
-                headerParamsExtractor.extractAllHeaders(request)
-            } else {
-                headerParamsExtractor.extractSpecificHeaders(
-                    request,
-                    loggingProperties.http.loggedHeaders,
-                    loggingProperties.http.excludedHeaders
-                )
-            }
-        )
-        logFieldsMap.putAll(parametersMasker.maskParameters(logFieldsMap, loggingProperties.http.maskedHeaders))
-
-        return logFieldsMap
-    }
-
-    fun getQueryParamsFields(request: ServerHttpRequest): Map<String, Any> {
-        val logFieldsMap = mutableMapOf<String, Any>()
-
-        logFieldsMap.putAll(
-            if (loggingProperties.http.loggedQueryParams.isEmpty()) {
-                queryParamsExtractor.extractAllQueries(request)
-            } else {
-                queryParamsExtractor.extractSpecificQueries(
-                    request,
-                    loggingProperties.http.loggedQueryParams
-                )
-            }
+    fun getCommonFields(exchange: ServerWebExchange) =
+        CommonLogArgs(
+            method = exchange.getRequestMethod(),
+            uri = exchange.getRequestUri()
         )
 
-        logFieldsMap.putAll(parametersMasker.maskParameters(logFieldsMap, loggingProperties.http.maskedQueryParams))
+    fun getHeadersFields(request: ServerHttpRequest): Map<String, Any> =
+        headerParamsExtractor.extractHeaders(request)
 
-        return logFieldsMap
-    }
+    fun getQueryParamsFields(request: ServerHttpRequest): Map<String, Any> =
+        queryParamsExtractor.extractQueries(request)
 
     fun getBodyField(body: String): String {
+        // TODO: use body extractor
         var finalBody: String = body
 
-        if (loggingProperties.http.body?.masked != null) {
-            loggingProperties.http.body.masked!!.forEach {
-                finalBody = body.replace(it.pattern.toRegex(), it.substitutionValue)
-            }
+        loggingProperties.http.body.masked.forEach {
+            finalBody = body.replace(it.pattern.toRegex(), it.substitutionValue)
         }
 
         return finalBody
     }
 
     fun getBodyField(
-            buffer: DataBuffer,
-            httpProperties: LoggingProperties.HttpWebfluxLoggingControlConfig
+        buffer: DataBuffer,
+        httpProperties: LoggingProperties.HttpLogging
     ): String {
-        val threshold: Int? = httpProperties.threshold?.toBytes()?.toInt()
+        val threshold: Int? = httpProperties.body.threshold?.toBytes()?.toInt()
         val readableByteCount: Int = buffer.readableByteCount()
         val isCutOff: Boolean = threshold != null && readableByteCount > threshold
         val bytesCount: Int = Integer.min(threshold ?: readableByteCount, readableByteCount)
@@ -91,12 +59,22 @@ class ParametersExtractor(
         }
 
         // mask body
-        if (loggingProperties.http.body?.masked != null) {
-            loggingProperties.http.body.masked!!.forEach {
-                body = body.replace(it.pattern.toRegex(), it.substitutionValue)
-            }
+        loggingProperties.http.body.masked.forEach {
+            body = body.replace(it.pattern.toRegex(), it.substitutionValue)
         }
 
         return body
     }
+
+    // TODO: get actual response code
+    fun getResponseStatusCode(exchange: ServerWebExchange): String =
+        exchange.response.statusCode?.value()?.toString() ?: EMPTY_VALUE
+
+    // TODO: get actual response code
+    fun getResponseStatusCode(response: ServerHttpResponse): String =
+        response.statusCode?.value()?.toString() ?: EMPTY_VALUE
+
+    // TODO: add headers
+    fun getResponseHeaders(response: ServerHttpResponse): Map<String, Any> =
+        emptyMap()
 }

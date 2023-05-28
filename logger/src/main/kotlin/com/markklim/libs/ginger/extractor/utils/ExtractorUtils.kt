@@ -1,11 +1,11 @@
 package com.markklim.libs.ginger.extractor.utils
 
-import com.markklim.libs.ginger.properties.LoggingProperties
-import org.springframework.http.HttpHeaders
 import org.springframework.util.LinkedCaseInsensitiveMap
 import org.springframework.util.MultiValueMap
 
-fun extractSpecificParameters(
+//TODO: implement
+
+/*fun extractSpecificParameters(
     attributes: MultiValueMap<String, String>,
     entities: List<LoggingProperties.LoggedEntity>,
 ): Map<String, String> {
@@ -28,7 +28,7 @@ fun extractSpecificParameters(
     }
 
     return logFieldsMap
-}
+}*/
 
 fun extractAll(attributes: MultiValueMap<String, String>): Map<String, String> {
     return attributes
@@ -45,6 +45,7 @@ fun extractStringFromList(strings: List<String>): String {
     }
 }
 
+/*
 fun filterLoggedEntities(
     loggedEntities: List<LoggingProperties.LoggedEntity>,
     excludedEntityNames: List<String>
@@ -58,4 +59,4 @@ fun filterLoggedEntities(
                 )
             }
         }
-}
+}*/
