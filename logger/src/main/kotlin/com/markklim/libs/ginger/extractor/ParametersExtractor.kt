@@ -9,7 +9,6 @@ import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.getRequestMethod
 import com.markklim.libs.ginger.utils.getRequestUri
-import com.markklim.libs.ginger.utils.isBinaryContent
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -30,10 +29,10 @@ class ParametersExtractor(
         )
 
     fun getHeadersFields(request: ServerHttpRequest): Map<String, String> =
-        headerParamsExtractor.extractHeaders(request)
+        headerParamsExtractor.extract(request)
 
     fun getQueryParamsFields(request: ServerHttpRequest): Map<String, String> =
-        queryParamsExtractor.extractQueries(request)
+        queryParamsExtractor.extract(request)
 
     fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean =
         bodyParamsExtractor.isRequestBodyLoggingEnabled(exchange)

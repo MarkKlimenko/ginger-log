@@ -25,11 +25,27 @@ class WebfluxLoggingAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(HeaderParametersExtractor::class)
-    fun headerParametersExtractor() = HeaderParametersExtractor()
+    fun headerParametersExtractor(
+        loggingProperties: LoggingProperties,
+        loggingDecisionComponent: LoggingDecisionComponent,
+        parametersMasker: ParametersMasker,
+    ) = HeaderParametersExtractor(
+        loggingProperties,
+        loggingDecisionComponent,
+        parametersMasker,
+    )
 
     @Bean
     @ConditionalOnMissingBean(QueryParametersExtractor::class)
-    fun queryParamsExtractor() = QueryParametersExtractor()
+    fun queryParamsExtractor(
+        loggingProperties: LoggingProperties,
+        loggingDecisionComponent: LoggingDecisionComponent,
+        parametersMasker: ParametersMasker,
+    ) = QueryParametersExtractor(
+        loggingProperties,
+        loggingDecisionComponent,
+        parametersMasker,
+    )
 
     @Bean
     @ConditionalOnMissingBean(BodyParametersExtractor::class)
