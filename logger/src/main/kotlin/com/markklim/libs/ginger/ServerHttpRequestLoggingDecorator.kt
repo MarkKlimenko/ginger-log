@@ -10,20 +10,15 @@ import reactor.core.publisher.toFlux
 
 class ServerHttpRequestLoggingDecorator(
     delegate: ServerHttpRequest,
-    loggingProperties: LoggingProperties.HttpLogging
+    val loggingProperties: LoggingProperties.HttpLogging
 ) : ServerHttpRequestDecorator(delegate) {
 
-    override fun getBody(): Flux<DataBuffer> {
-        return requestBody.value
-    }
-
-    private val requestBody = lazy {
-        if (loggingProperties.extendedLoggingEnabled) {
+    override fun getBody(): Flux<DataBuffer> =
+        if (loggingProperties.body.enabled) {
             // convert to Mono is used special for log entire body in
             // com.markklim.libs.ginger.LoggingFilter.logRequestBody
             DataBufferUtils.join(super.getBody()).toFlux().cache()
         } else {
             super.getBody()
         }
-    }
 }

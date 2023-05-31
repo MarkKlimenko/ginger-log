@@ -75,6 +75,6 @@ class ServerHttpResponseLoggingDecorator(
         requestLoggingState.responseLogged = true
     }
 
-    private fun isExtendedLoggingEnabled() = loggingProperties.extendedLoggingEnabled
+    private fun isExtendedLoggingEnabled() = loggingProperties.body.enabled
         && (!delegate.isBinaryContent() || loggingProperties.body.binaryContentLogging == ENABLED)
 }

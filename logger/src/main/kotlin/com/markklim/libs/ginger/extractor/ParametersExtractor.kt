@@ -1,6 +1,7 @@
 package com.markklim.libs.ginger.extractor
 
 import com.markklim.libs.ginger.dao.CommonLogArgs
+import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.masking.ParametersMasker
@@ -8,6 +9,7 @@ import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.getRequestMethod
 import com.markklim.libs.ginger.utils.getRequestUri
+import com.markklim.libs.ginger.utils.isBinaryContent
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -18,6 +20,7 @@ class ParametersExtractor(
     private val loggingProperties: LoggingProperties,
     private val headerParamsExtractor: HeaderParametersExtractor,
     private val queryParamsExtractor: QueryParametersExtractor,
+    private val bodyParamsExtractor: BodyParametersExtractor,
     private val parametersMasker: ParametersMasker,
 ) {
     fun getCommonFields(exchange: ServerWebExchange) =
@@ -26,11 +29,14 @@ class ParametersExtractor(
             uri = exchange.getRequestUri()
         )
 
-    fun getHeadersFields(request: ServerHttpRequest): Map<String, Any> =
+    fun getHeadersFields(request: ServerHttpRequest): Map<String, String> =
         headerParamsExtractor.extractHeaders(request)
 
-    fun getQueryParamsFields(request: ServerHttpRequest): Map<String, Any> =
+    fun getQueryParamsFields(request: ServerHttpRequest): Map<String, String> =
         queryParamsExtractor.extractQueries(request)
+
+    fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean =
+        bodyParamsExtractor.isRequestBodyLoggingEnabled(exchange)
 
     fun getBodyField(body: String): String {
         // TODO: use body extractor
@@ -75,6 +81,6 @@ class ParametersExtractor(
         response.statusCode?.value()?.toString() ?: EMPTY_VALUE
 
     // TODO: add headers
-    fun getResponseHeaders(response: ServerHttpResponse): Map<String, Any> =
+    fun getResponseHeaders(response: ServerHttpResponse): Map<String, String> =
         emptyMap()
 }

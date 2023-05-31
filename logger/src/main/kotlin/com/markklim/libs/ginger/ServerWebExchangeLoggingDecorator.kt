@@ -43,7 +43,7 @@ class ServerWebExchangeLoggingDecorator(
             )
 
     private val multipartData = lazy {
-        if (loggingProperties.extendedLoggingEnabled) {
+        if (loggingProperties.body.enabled) {
             computeMultipartMono().cache()
         } else {
             super.getMultipartData()

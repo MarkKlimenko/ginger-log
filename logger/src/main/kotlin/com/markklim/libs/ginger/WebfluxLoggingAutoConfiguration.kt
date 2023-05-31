@@ -3,6 +3,7 @@ package com.markklim.libs.ginger
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
+import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
@@ -31,16 +32,28 @@ class WebfluxLoggingAutoConfiguration {
     fun queryParamsExtractor() = QueryParametersExtractor()
 
     @Bean
+    @ConditionalOnMissingBean(BodyParametersExtractor::class)
+    fun bodyParamsExtractor(
+        loggingProperties: LoggingProperties,
+        loggingDecisionComponent: LoggingDecisionComponent,
+    ) = BodyParametersExtractor(
+        loggingProperties,
+        loggingDecisionComponent
+    )
+
+    @Bean
     @ConditionalOnMissingBean(ParametersExtractor::class)
     fun parametersExtractor(
         loggingProperties: LoggingProperties,
         headerParamsExtractor: HeaderParametersExtractor,
         queryParamsExtractor: QueryParametersExtractor,
+        bodyParamsExtractor: BodyParametersExtractor,
         parametersMasker: ParametersMasker,
     ) = ParametersExtractor(
         loggingProperties,
         headerParamsExtractor,
         queryParamsExtractor,
+        bodyParamsExtractor,
         parametersMasker,
     )
 
@@ -53,10 +66,9 @@ class WebfluxLoggingAutoConfiguration {
     @ConditionalOnMissingBean(LoggingDecisionComponent::class)
     fun loggingDecisionComponent(
         loggingProperties: LoggingProperties
-    ) =
-        LoggingDecisionComponent(
-            loggingProperties
-        )
+    ) = LoggingDecisionComponent(
+        loggingProperties
+    )
 
     // TODO: create interfaces for all components
     @Bean

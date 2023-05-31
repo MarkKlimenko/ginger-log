@@ -15,7 +15,6 @@ data class LoggingProperties(
 ) {
     data class HttpLogging(
         val enabled: Boolean = true,
-        val extendedLoggingEnabled: Boolean = false,
         val clientErrorsLevel: Level = Level.DEBUG,
 
         // TODO: add caching for this uris (do not check query params)
@@ -45,6 +44,7 @@ data class LoggingProperties(
     }
 
     data class LoggedBodySettings(
+        var enabled: Boolean = false,
         val uris: Patterns = Patterns(),
         val binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
         val threshold: DataSize? = null,
@@ -54,6 +54,9 @@ data class LoggingProperties(
             val pattern: Pattern,
             val substitutionValue: String
         )
+
+        fun isBinaryContentLoggingEnabled(): Boolean =
+            binaryContentLogging == BinaryContentLoggingStatus.ENABLED
     }
 
     enum class BinaryContentLoggingStatus {

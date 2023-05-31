@@ -48,7 +48,7 @@ class LoggingDecisionComponent(
             isContentTypeAllowedCache,
         )
 
-    private fun isLogActionAllowed(
+    fun isLogActionAllowed(
         value: String,
         incPatterns: List<Pattern>,
         excPatterns: List<Pattern>,

@@ -6,7 +6,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 class QueryParametersExtractor {
 
     // TODO: filter queries
-    fun extractQueries(request: ServerHttpRequest): Map<String, Unit> {
+    fun extractQueries(request: ServerHttpRequest): Map<String, String> {
         return request.queryParams.mapValues { extractStringFromList(it.value) }
     }
 

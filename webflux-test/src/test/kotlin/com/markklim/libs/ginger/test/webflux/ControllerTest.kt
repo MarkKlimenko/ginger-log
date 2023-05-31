@@ -16,7 +16,7 @@ class ControllerTest : WebIntegrationTest() {
 
         webTestClient.post()
             .uri{uriFunction ->
-                uriFunction.path("/api/test1")
+                uriFunction.path("/api/v1/test1")
                     .queryParam("param1", "value secret")
                     .queryParam("param2", "value ok")
                     .build()

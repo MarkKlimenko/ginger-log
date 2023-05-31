@@ -6,13 +6,12 @@ import com.markklim.libs.ginger.dao.ResponseLogArgs
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
-import com.markklim.libs.ginger.properties.*
+import com.markklim.libs.ginger.properties.LoggingProperties
+import com.markklim.libs.ginger.properties.REQUEST_INFO_TAG
+import com.markklim.libs.ginger.properties.RESPONSE_INFO_TAG
 import com.markklim.libs.ginger.state.RequestLoggingState
 import com.markklim.libs.ginger.utils.formattedBody
-import com.markklim.libs.ginger.utils.isBinaryContent
 import com.markklim.libs.ginger.utils.isMultipart
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
@@ -65,7 +64,7 @@ class LoggingFilter(
         decorator: ServerWebExchangeLoggingDecorator,
         commonLogArgs: CommonLogArgs,
     ): Mono<Any> {
-        val logArgs = RequestLogArgs (
+        val logArgs = RequestLogArgs(
             common = commonLogArgs,
             headers = parametersExtractor.getHeadersFields(decorator.request),
             queryParams = parametersExtractor.getQueryParamsFields(decorator.request),
@@ -73,14 +72,10 @@ class LoggingFilter(
 
         val httpProperties: LoggingProperties.HttpLogging = loggingProperties.http
 
-        if (httpProperties.extendedLoggingEnabled
-            && logger.isInfoEnabled()
-            && (!decorator.request.isBinaryContent()
-                || httpProperties.body.binaryContentLogging == LoggingProperties.BinaryContentLoggingStatus.ENABLED)
-        ) {
+        if (parametersExtractor.isRequestBodyLoggingEnabled(decorator.delegate)) {
             return if (decorator.request.isMultipart()) {
                 decorator.multipartData.flatMap { multiPartData ->
-                    multiPartData.formattedBody(httpProperties.body.binaryContentLogging == LoggingProperties.BinaryContentLoggingStatus.ENABLED)
+                    multiPartData.formattedBody(httpProperties.body.isBinaryContentLoggingEnabled())
                         .doOnNext {
                             logArgs.body = parametersExtractor.getBodyField(it)
 
@@ -122,6 +117,7 @@ class LoggingFilter(
             val logArgs = ResponseLogArgs(
                 common = commonLogArgs,
                 code = parametersExtractor.getResponseStatusCode(exchange),
+                headers = null,
                 timeSpent = requestLoggingState.timeSpent()
             )
 
