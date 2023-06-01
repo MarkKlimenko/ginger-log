@@ -1,5 +1,6 @@
 package com.markklim.libs.ginger.decision
 
+import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.getContentType
 import com.markklim.libs.ginger.utils.getRequestMethod
@@ -11,15 +12,14 @@ import java.util.regex.Pattern
 
 class LoggingDecisionComponent(
     private val loggingProperties: LoggingProperties,
+    private val jsonLogger: JsonLogger,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
-
     private val isUriAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
     private val isMethodAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
     private val isContentTypeAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
 
     fun isLoggingAllowed(exchange: ServerWebExchange): Boolean =
-        log.isInfoEnabled
+        jsonLogger.isInfoEnabled()
             && isUriAllowedForLogging(exchange.getRequestUri())
             && isMethodAllowedForLogging(exchange.getRequestMethod())
             && isContentTypeAllowedForLogging(exchange.getContentType())

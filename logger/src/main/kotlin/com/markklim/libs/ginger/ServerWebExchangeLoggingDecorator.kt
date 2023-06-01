@@ -1,11 +1,10 @@
 package com.markklim.libs.ginger
 
 import com.markklim.libs.ginger.dao.CommonLogArgs
-import com.markklim.libs.ginger.dao.RequestLogArgs
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.state.RequestLoggingState
+import com.markklim.libs.ginger.dao.RequestLoggingState
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.Hints
 import org.springframework.http.InvalidMediaTypeException

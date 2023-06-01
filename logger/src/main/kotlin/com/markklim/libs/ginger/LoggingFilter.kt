@@ -2,14 +2,12 @@ package com.markklim.libs.ginger
 
 import com.markklim.libs.ginger.dao.CommonLogArgs
 import com.markklim.libs.ginger.dao.RequestLogArgs
+import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.dao.ResponseLogArgs
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.properties.REQUEST_INFO_TAG
-import com.markklim.libs.ginger.properties.RESPONSE_INFO_TAG
-import com.markklim.libs.ginger.state.RequestLoggingState
 import com.markklim.libs.ginger.utils.formattedBody
 import com.markklim.libs.ginger.utils.isMultipart
 import org.springframework.http.codec.ServerCodecConfigurer
@@ -49,8 +47,6 @@ class LoggingFilter(
             parametersExtractor,
             logger
         )
-        // is it required?
-        //exchange.attributes[loggingProperties.http.webFlux.decoratedExchangeAttributeName] = decoratedExchange
 
         return logRequestBody(decoratedExchange, commonLogArgs)
             .then(chain.filter(decoratedExchange)
@@ -74,37 +70,35 @@ class LoggingFilter(
 
         if (parametersExtractor.isRequestBodyLoggingEnabled(decorator.delegate)) {
             return if (decorator.request.isMultipart()) {
-                decorator.multipartData.flatMap { multiPartData ->
-                    multiPartData.formattedBody(httpProperties.body.isBinaryContentLoggingEnabled())
-                        .doOnNext {
-                            logArgs.body = parametersExtractor.getBodyField(it)
+                decorator.multipartData
+                    .flatMap { multiPartData ->
+                        multiPartData.formattedBody(httpProperties.body.isBinaryContentLoggingEnabled())
+                            .doOnNext {
+                                logArgs.body = parametersExtractor.getBodyField(it)
 
-                            logger.info(REQUEST_INFO_TAG, logArgs)
-                        }
-                }.switchIfEmpty(Mono.defer {
-                    logger.info(REQUEST_INFO_TAG, logArgs)
-                    Mono.empty()
-                }).then(Mono.empty())
+                                logger.info(logArgs)
+                            }
+                    }.switchIfEmpty(Mono.defer {
+                        logger.info(logArgs)
+                        Mono.empty()
+                    })
+                    .then(Mono.empty())
             } else {
                 decorator.request.body
                     .doOnNext {
-                        val body: String = parametersExtractor.getBodyField(
-                            it,
-                            loggingProperties.http
-                        )
-                        logArgs.body = body
+                        logArgs.body = parametersExtractor.getBodyField(it)
 
-                        logger.info(REQUEST_INFO_TAG, logArgs)
+                        logger.info(logArgs)
                     }
                     .switchIfEmpty(Mono.defer {
-                        logger.info(REQUEST_INFO_TAG, logArgs)
+                        logger.info(logArgs)
                         Mono.empty()
                     })
                     .then(Mono.empty())
             }
         }
 
-        logger.info("Server request: $logArgs")
+        logger.info(logArgs)
         return Mono.empty()
     }
 
@@ -122,9 +116,9 @@ class LoggingFilter(
             )
 
             if (exchange.response.statusCode?.isError == true) {
-                logger.error(RESPONSE_INFO_TAG, logArgs)
+                logger.error(logArgs)
             } else {
-                logger.info(RESPONSE_INFO_TAG, logArgs)
+                logger.info(logArgs)
             }
         }
     }

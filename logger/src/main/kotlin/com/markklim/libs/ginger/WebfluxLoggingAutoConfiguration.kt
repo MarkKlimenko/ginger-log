@@ -60,17 +60,13 @@ class WebfluxLoggingAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(ParametersExtractor::class)
     fun parametersExtractor(
-        loggingProperties: LoggingProperties,
         headerParamsExtractor: HeaderParametersExtractor,
         queryParamsExtractor: QueryParametersExtractor,
         bodyParamsExtractor: BodyParametersExtractor,
-        parametersMasker: ParametersMasker,
     ) = ParametersExtractor(
-        loggingProperties,
         headerParamsExtractor,
         queryParamsExtractor,
         bodyParamsExtractor,
-        parametersMasker,
     )
 
     @Bean
@@ -81,9 +77,11 @@ class WebfluxLoggingAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(LoggingDecisionComponent::class)
     fun loggingDecisionComponent(
-        loggingProperties: LoggingProperties
+        loggingProperties: LoggingProperties,
+        logger: JsonLogger,
     ) = LoggingDecisionComponent(
-        loggingProperties
+        loggingProperties,
+        logger
     )
 
     // TODO: create interfaces for all components

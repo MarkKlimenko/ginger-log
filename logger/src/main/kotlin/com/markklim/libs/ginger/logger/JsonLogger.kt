@@ -14,26 +14,24 @@ class JsonLogger(
 
     fun isErrorEnabled() = log.isErrorEnabled
 
-    fun info(format: String, value: Any) {
-        log.info(format, serialize(value))
+    fun info(value: Any) {
+        log.info(serialize(value))
     }
 
-    fun info(format: String) {
-        log.info(format)
+    fun error(value: Any) {
+        log.error(serialize(value))
     }
 
-    fun debug(format: String, value: Any) {
-        log.debug(format, serialize(value))
+    fun log(level: Level, value: Any) {
+        when (level) {
+            Level.WARN -> log.warn(serialize(value))
+            Level.ERROR -> log.error(serialize(value))
+            Level.DEBUG -> log.debug(serialize(value))
+            Level.TRACE -> log.trace(serialize(value))
+            Level.INFO -> log.info(serialize(value))
+        }
     }
 
-    fun error(format: String, value: Any) {
-        log.error(format, serialize(value))
-    }
-
-    fun log(level: Level, format: String, value: Any) {
-        log.log(level, format, serialize(value))
-    }
-
-    fun serialize(value: Any): String =
+    private fun serialize(value: Any): String =
         objectMapper.writeValueAsString(value)
 }

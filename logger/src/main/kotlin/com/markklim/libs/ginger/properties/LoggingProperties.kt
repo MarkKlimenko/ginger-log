@@ -16,8 +16,6 @@ data class LoggingProperties(
     data class HttpLogging(
         val enabled: Boolean = true,
         val clientErrorsLevel: Level = Level.DEBUG,
-
-        // TODO: add caching for this uris (do not check query params)
         val uris: Patterns = Patterns(),
         val contentTypes: Patterns = Patterns(),
         val methods: Patterns = Patterns(),
