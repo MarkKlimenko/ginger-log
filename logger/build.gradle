@@ -40,15 +40,21 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "$kotlinVersion"
 
     id "io.spring.dependency-management" version "$springManagementVersion"
-    id "org.springframework.boot" version "$springBootVersion"
+    //id "org.springframework.boot" version "$springBootVersion"
 
-    id "com.markklim.popcorn.quality" version "$codeQualityVersion"
+    //id "com.markklim.popcorn.quality" version "$codeQualityVersion"
+
+    id "maven-publish"
+    id "signing"
 }
 
 group = 'com.markklim.libs'
-version = "1.1"
+archivesBaseName = "ginger-log"
+version = "1.1.0"
 
 java {
+    withSourcesJar()
+    withJavadocJar()
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
@@ -64,16 +70,63 @@ dependencyManagement {
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-reflect"
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
+    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.1"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1"
     compileOnly "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
     compileOnly "com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion"
 
-    compileOnly "org.springframework.boot:spring-boot-starter-webflux"
+    compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
     implementation "net.logstash.logback:logstash-logback-encoder:5.2"
 
-    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
+    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.markklim.libs'
+            artifactId = 'ginger-log'
+            version = '1.1.0'
+
+            from components.java
+
+            pom {
+                name = 'Spring extended logger - Ginger'
+                description = 'Spring request/response logging library'
+                url = 'https://github.com/MarkKlimenko/ginger-log'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'markklim'
+                        name = 'Mark Klimenko'
+                        email = 'mark.klimenko.w@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MarkKlimenko/ginger-log.git'
+                    developerConnection = 'scm:git:ssh://github.com/MarkKlimenko/ginger-log.git'
+                    url = 'https://github.com/MarkKlimenko/ginger-log'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name "nexus"
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials(PasswordCredentials)
+        }
+    }
+}
+
+signing {
+    sign configurations.archives
 }
