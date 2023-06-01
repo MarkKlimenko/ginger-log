@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono
 
 
 // TODO: log on error
+// TODO: add log probability
+// TODO: add readme
 class LoggingFilter(
     private val loggingProperties: LoggingProperties,
     private val parametersExtractor: ParametersExtractor,
