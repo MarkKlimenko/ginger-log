@@ -16,6 +16,8 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
+
+// TODO: log on error
 class LoggingFilter(
     private val loggingProperties: LoggingProperties,
     private val parametersExtractor: ParametersExtractor,
