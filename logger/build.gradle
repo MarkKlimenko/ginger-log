@@ -12,14 +12,8 @@ buildscript {
         // versions
         kotlinVersion = "1.7.22"
         kotlinLoggingVersion = "2.0.11"
-        kotlinJacksonVersion = "2.14.1"
-        kotlinMockitoVersion = "3.2.0"
 
         springBootVersion = "2.7.9"
-
-        luceneVersion = "9.5.0"
-        commonsCodecVersion = "1.15"
-        commonsIoVersion = "2.11.0"
 
         junitVersion = "5.8.1"
         codeQualityVersion = "1.1"
@@ -64,6 +58,10 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
 
     kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 publishing {
@@ -111,4 +109,8 @@ publishing {
 
 signing {
     sign publishing.publications.mavenJava
+}
+
+test {
+    useJUnitPlatform()
 }

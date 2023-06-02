@@ -22,7 +22,6 @@ import org.springframework.http.codec.ServerCodecConfigurer
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnProperty(name = ["logging.http.web-flux.enabled"], matchIfMissing = true)
 class WebfluxLoggingAutoConfiguration {
-
     @Bean
     @ConditionalOnMissingBean(HeaderParametersExtractor::class)
     fun headerParametersExtractor(
