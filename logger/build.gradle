@@ -1,16 +1,13 @@
 buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url '../local-plugin-repository'
-        }
-        gradlePluginPortal()
-    }
-
     ext {
         coverageExclusion = [
                 '**/**',
         ]
+
+        // library properties
+        libraryGroup = 'com.markklim.libs'
+        libraryArchivesBaseName = "ginger-log"
+        libraryVersion = "1.1.1"
 
         // versions
         kotlinVersion = "1.7.22"
@@ -19,8 +16,6 @@ buildscript {
         kotlinMockitoVersion = "3.2.0"
 
         springBootVersion = "2.7.9"
-        springCloudVersion = "2021.0.6"
-        springManagementVersion = "1.0.15.RELEASE"
 
         luceneVersion = "9.5.0"
         commonsCodecVersion = "1.15"
@@ -31,17 +26,10 @@ buildscript {
     }
 }
 
-// TODO: refactor
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.noarg" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.allopen" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.jpa" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
     id "org.jetbrains.kotlin.kapt" version "$kotlinVersion"
-
-    id "io.spring.dependency-management" version "$springManagementVersion"
-    //id "org.springframework.boot" version "$springBootVersion"
 
     id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 
@@ -50,25 +38,19 @@ plugins {
     id "signing"
 }
 
-group = 'com.markklim.libs'
-archivesBaseName = "ginger-log"
-version = "1.1.0"
+group = libraryGroup
+archivesBaseName = libraryArchivesBaseName
+version = libraryVersion
 
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
     mavenCentral()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
-    }
 }
 
 dependencies {
@@ -78,20 +60,18 @@ dependencies {
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.1"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1"
     compileOnly "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
-    compileOnly "com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion"
 
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
-    implementation "net.logstash.logback:logstash-logback-encoder:5.2"
 
-    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion"
+    kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'com.markklim.libs'
-            artifactId = 'ginger-log'
-            version = '1.1.0'
+            groupId = libraryGroup
+            artifactId = libraryArchivesBaseName
+            version = libraryVersion
 
             from components.java
 
