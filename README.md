@@ -74,4 +74,8 @@ logging:
 ## Loggers
 - Json logger (default)
 - Text logger
-- Custom logger (implement interface)
+- Custom logger (implement interface [Logger.kt](logger%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fmarkklim%2Flibs%2Fginger%2Flogger%2FLogger.kt))
+
+## Cache
+- Internal cache (default)
+- Custom cache (implement interface [LoggingCache.kt](logger%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fmarkklim%2Flibs%2Fginger%2Fcache%2FLoggingCache.kt))
