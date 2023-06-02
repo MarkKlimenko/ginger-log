@@ -21,6 +21,5 @@ fun HttpMessage.isBinaryContent(): Boolean =
 fun Part.isBinaryContent(): Boolean =
     this.headers().contentType?.let { BINARY_CONTENT_TYPES.contains(it) } ?: false
 
-fun HttpMessage.isMultipart(): Boolean {
-    return this.headers.contentType?.let { MULTIPART_FORM_DATA.isCompatibleWith(it) } ?: false
-}
+fun HttpMessage.isMultipart(): Boolean =
+    this.headers.contentType?.let { MULTIPART_FORM_DATA.isCompatibleWith(it) } ?: false

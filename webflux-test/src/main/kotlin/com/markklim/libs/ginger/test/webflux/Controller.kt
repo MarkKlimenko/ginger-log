@@ -12,9 +12,7 @@ class Controller {
     @PostMapping("test1")
     suspend fun test1(
         @RequestBody request: Entity
-    ): Entity {
-        return request
-    }
+    ): Entity = request
 
     data class Entity(
         val login: String,

@@ -5,8 +5,6 @@ import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.getContentType
 import com.markklim.libs.ginger.utils.getRequestMethod
 import com.markklim.libs.ginger.utils.getRequestUri
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.web.server.ServerWebExchange
 import java.util.regex.Pattern
 

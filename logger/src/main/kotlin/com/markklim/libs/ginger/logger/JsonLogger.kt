@@ -1,14 +1,13 @@
 package com.markklim.libs.ginger.logger
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
 class JsonLogger(
     val objectMapper: ObjectMapper
 ) {
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+    private val log: org.slf4j.Logger = LoggerFactory.getLogger(Logger::class.java)
 
     fun isInfoEnabled() = log.isInfoEnabled
 

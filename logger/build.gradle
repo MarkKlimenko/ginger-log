@@ -43,8 +43,7 @@ plugins {
     id "io.spring.dependency-management" version "$springManagementVersion"
     //id "org.springframework.boot" version "$springBootVersion"
 
-    // TODO: Enable
-    //id "com.markklim.popcorn.quality" version "$codeQualityVersion"
+    id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 
     id 'java-library'
     id "maven-publish"

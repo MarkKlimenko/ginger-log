@@ -16,58 +16,62 @@ build.gradle
 ``` 
 implementation "com.markklim.libs:ginger-log:1.1.0"
 ```
-application.yml
+application.yml (more examples in tests)
 ```
 logging:
   http:
-    client-errors-level: INFO
+    enabled: true/false (default: true)
+    client-errors-level: ERROR/WARN/INFO/DEBUG/TRACE (default: DEBUG)
     uris:
       include:
-        - "/api/.*"
+        - "regex_pattern" (default: everything included)
       exclude:
-        - "/service/status"
+        - "regex_pattern" (default: nothing excluded)
     content-types:
       include:
-        - "application/json"
+        - "regex_pattern" (default: everything included)
       exclude:
-        - "application/octet-stream"
+        - "regex_pattern" (default: nothing excluded)
     methods:
+      include:
+        - "regex_pattern" (default: everything included)
       exclude:
-        - "OPTIONAL"
+        - "regex_pattern" (default: nothing excluded)
     headers:
       properties:
         include:
-          - ".*"
+            - "regex_pattern" (default: everything included)
         exclude:
-          - "Auth"
+            - "regex_pattern" (default: nothing excluded)
         masked:
-          - property: "Authorization"
-            substitution-value: "token"
-          - property: "Auth-Info"
-            value-pattern: "password.*"
-            substitution-value: "password"
+          - property: "string"
+            value-pattern: "regex_pattern" (default: match any)
+            substitution-value: "string"
     query-params:
       properties:
         include:
-          - ".*"
+            - "regex_pattern" (default: everything included)
         exclude:
-          - "Auth"
+            - "regex_pattern" (default: nothing excluded)
         masked:
-          - property: "param1"
-            value-pattern: ".*"
-            substitution-value: "***"
+          - property: "string"
+            value-pattern: "regex_pattern" (default: match any)
+            substitution-value: "string"
     body:
       enabled: true
       uris:
         include:
-          - "/api/v1/.*"
+            - "regex_pattern" (default: everything included)
         exclude:
-          - "/api/v2/.*"
-      binary-content-logging: "ENABLED"
-      threshold: "1KB"
+            - "regex_pattern" (default: nothing excluded)
+      binary-content-logging: ENABLED/DISABLED (default: DISABLED)
+      threshold: "1KB" Java DataSize (default: disabled)
       masked:
-        - pattern: '"accessToken":".*?"'
-          substitutionValue: '"accessToken":"maskedAccessToken"'
-        - pattern: '"refreshToken":".*?"'
-          substitutionValue: '"refreshToken":"maskedRefreshToken"'
+        - pattern: "regex_pattern"
+          substitutionValue: "string"
 ```
+
+## Loggers
+- Json logger (default)
+- Text logger
+- Custom logger (implement interface)

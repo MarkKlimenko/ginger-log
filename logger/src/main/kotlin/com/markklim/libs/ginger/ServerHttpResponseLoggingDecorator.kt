@@ -1,12 +1,12 @@
 package com.markklim.libs.ginger
 
 import com.markklim.libs.ginger.dao.CommonLogArgs
+import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.dao.ResponseLogArgs
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
-import com.markklim.libs.ginger.properties.*
+import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.properties.LoggingProperties.BinaryContentLoggingStatus.ENABLED
-import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.utils.isBinaryContent
 import com.markklim.libs.ginger.utils.isNotEmpty
 import org.reactivestreams.Publisher
@@ -28,23 +28,17 @@ class ServerHttpResponseLoggingDecorator(
 ) : ServerHttpResponseDecorator(exchange.response) {
 
     override fun writeWith(body: Publisher<out DataBuffer>): Mono<Void> {
-        return if (logger.isInfoEnabled() || (logger.isErrorEnabled() && delegate.statusCode?.isError == true)) {
-            if (isExtendedLoggingEnabled()) {
-                super.writeWith(DataBufferUtils.join(body)
-                    .transformDeferredContextual { dataBufferMono: Mono<DataBuffer?>, _: ContextView? ->
-                        dataBufferMono
-                            .doOnNext {
-                                logResponseBody(it)
-                            }
-                    }
-                )
-            } else {
-                logResponseBody(null)
-                super.writeWith(body.toFlux())
-            }
-
+        return if (isBodyLoggingEnabled()) {
+            super.writeWith(DataBufferUtils.join(body)
+                .transformDeferredContextual { dataBufferMono: Mono<DataBuffer?>, _: ContextView? ->
+                    dataBufferMono
+                        .doOnNext {
+                            logResponseBody(it)
+                        }
+                }
+            )
         } else {
-            requestLoggingState.responseLogged = true
+            logResponseBody(null)
             super.writeWith(body.toFlux())
         }
     }
@@ -71,6 +65,6 @@ class ServerHttpResponseLoggingDecorator(
         requestLoggingState.responseLogged = true
     }
 
-    private fun isExtendedLoggingEnabled() = loggingProperties.body.enabled
+    private fun isBodyLoggingEnabled() = loggingProperties.body.enabled
         && (!delegate.isBinaryContent() || loggingProperties.body.binaryContentLogging == ENABLED)
 }

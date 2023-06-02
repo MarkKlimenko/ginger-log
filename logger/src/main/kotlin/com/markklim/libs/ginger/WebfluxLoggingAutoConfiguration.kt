@@ -52,9 +52,11 @@ class WebfluxLoggingAutoConfiguration {
     fun bodyParamsExtractor(
         loggingProperties: LoggingProperties,
         loggingDecisionComponent: LoggingDecisionComponent,
+        serverCodecConfigurer: ServerCodecConfigurer,
     ) = BodyParametersExtractor(
         loggingProperties,
-        loggingDecisionComponent
+        loggingDecisionComponent,
+        serverCodecConfigurer
     )
 
     @Bean
@@ -97,14 +99,12 @@ class WebfluxLoggingAutoConfiguration {
     @ConditionalOnMissingBean(LoggingFilter::class)
     fun loggingFilter(
         loggingProperties: LoggingProperties,
-        serverCodecConfigurer: ServerCodecConfigurer,
         parametersExtractor: ParametersExtractor,
         loggingDecisionComponent: LoggingDecisionComponent,
         logger: JsonLogger,
     ) = LoggingFilter(
         loggingProperties,
         parametersExtractor,
-        serverCodecConfigurer,
         loggingDecisionComponent,
         logger
     )

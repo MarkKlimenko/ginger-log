@@ -8,9 +8,12 @@ import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.utils.getRequestMethod
 import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.http.codec.multipart.Part
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.util.MultiValueMap
 import org.springframework.web.server.ServerWebExchange
+import reactor.core.publisher.Mono
 
 class ParametersExtractor(
     private val headerParamsExtractor: HeaderParametersExtractor,
@@ -37,6 +40,9 @@ class ParametersExtractor(
 
     fun getBodyField(buffer: DataBuffer): String =
         bodyParamsExtractor.getBodyField(buffer)
+
+    fun getBodyMultipartData(request: ServerHttpRequest, exchange: ServerWebExchange): Mono<MultiValueMap<String, Part>> =
+        bodyParamsExtractor.getBodyMultipartData(request, exchange)
 
     // TODO: get actual response code
     fun getResponseStatusCode(exchange: ServerWebExchange): String =

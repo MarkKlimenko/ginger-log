@@ -42,7 +42,7 @@ plugins {
     id "io.spring.dependency-management" version "$springManagementVersion"
     id "org.springframework.boot" version "$springBootVersion"
 
-    id "com.markklim.popcorn.quality" version "$codeQualityVersion"
+    //id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 }
 
 group = 'com.markklim.libs'

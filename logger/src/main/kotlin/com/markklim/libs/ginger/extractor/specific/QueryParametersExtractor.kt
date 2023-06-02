@@ -11,7 +11,6 @@ class QueryParametersExtractor(
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val parametersMasker: ParametersMasker,
 ) {
-
     private val isQueryParamsLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
 
     fun extract(request: ServerHttpRequest): Map<String, String> {
@@ -27,5 +26,4 @@ class QueryParametersExtractor(
 
         return parametersMasker.maskParameters(params, loggingProperties.http.queryParams.properties.masked)
     }
-
 }

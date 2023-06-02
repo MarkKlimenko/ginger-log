@@ -20,7 +20,7 @@ class ControllerTest : WebIntegrationTest() {
         )
 
         webTestClient.post()
-            .uri{uriFunction ->
+            .uri { uriFunction ->
                 uriFunction.path("/api/v1/test1")
                     .queryParam("param1", "value secret")
                     .queryParam("param2", "value ok")
@@ -64,7 +64,7 @@ class ControllerTest : WebIntegrationTest() {
     @Test
     fun serviceStatusTest(output: CapturedOutput) {
         webTestClient.post()
-            .uri{uriFunction ->
+            .uri { uriFunction ->
                 uriFunction.path("/service/status")
                     .build()
             }

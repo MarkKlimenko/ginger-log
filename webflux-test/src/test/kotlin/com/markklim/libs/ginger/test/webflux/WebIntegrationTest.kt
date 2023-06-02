@@ -1,6 +1,5 @@
 package com.markklim.libs.ginger.test.webflux
 
-import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,9 +10,4 @@ import org.springframework.test.web.reactive.server.WebTestClient
 class WebIntegrationTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
-
-    @BeforeEach
-    fun init() {
-
-    }
 }

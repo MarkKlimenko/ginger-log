@@ -7,7 +7,5 @@ class RequestLoggingState(
     val clock: Clock = Clock.systemUTC(),
     val startTime: Long = clock.millis()
 ) {
-    fun timeSpent(): Long {
-        return clock.millis() - startTime
-    }
+    fun timeSpent(): Long = clock.millis() - startTime
 }

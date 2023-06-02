@@ -9,7 +9,5 @@ import org.springframework.web.bind.annotation.RestController
 class ServiceStatusController {
 
     @PostMapping("status")
-    suspend fun testServiceStatus(): String {
-        return "OK"
-    }
+    suspend fun testServiceStatus(): String = "OK"
 }

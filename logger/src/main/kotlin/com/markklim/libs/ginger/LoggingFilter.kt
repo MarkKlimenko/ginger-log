@@ -10,20 +10,16 @@ import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.formattedBody
 import com.markklim.libs.ginger.utils.isMultipart
-import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
-
 // TODO: log on error
 // TODO: add log probability
-// TODO: add readme
 class LoggingFilter(
     private val loggingProperties: LoggingProperties,
     private val parametersExtractor: ParametersExtractor,
-    private val serverCodecConfigurer: ServerCodecConfigurer,
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val logger: JsonLogger
 ) : WebFilter {
@@ -38,18 +34,16 @@ class LoggingFilter(
         exchange: ServerWebExchange,
         chain: WebFilterChain,
     ): Mono<Void> {
-        // TODO: add just common info
         val commonLogArgs: CommonLogArgs = parametersExtractor.getCommonFields(exchange)
         val requestLoggingState = RequestLoggingState()
 
         val decoratedExchange = ServerWebExchangeLoggingDecorator(
             exchange,
-            loggingProperties.http,
-            serverCodecConfigurer,
+            loggingProperties,
+            parametersExtractor,
             commonLogArgs,
             requestLoggingState,
-            parametersExtractor,
-            logger
+            logger,
         )
 
         return logRequestBody(decoratedExchange, commonLogArgs)
@@ -70,13 +64,11 @@ class LoggingFilter(
             queryParams = parametersExtractor.getQueryParamsFields(decorator.request),
         )
 
-        val httpProperties: LoggingProperties.HttpLogging = loggingProperties.http
-
         if (parametersExtractor.isRequestBodyLoggingEnabled(decorator.delegate)) {
             return if (decorator.request.isMultipart()) {
                 decorator.multipartData
                     .flatMap { multiPartData ->
-                        multiPartData.formattedBody(httpProperties.body.isBinaryContentLoggingEnabled())
+                        multiPartData.formattedBody(loggingProperties.http.body.isBinaryContentLoggingEnabled())
                             .doOnNext {
                                 logArgs.body = parametersExtractor.getBodyField(it)
 
