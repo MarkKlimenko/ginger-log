@@ -1,12 +1,15 @@
 package com.markklim.libs.ginger
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.markklim.libs.ginger.cache.InternalLoggingCache
+import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.codec.ServerCodecConfigurer
 
+// TODO: create interfaces for all components
 @Configuration
 @EnableConfigurationProperties(LoggingProperties::class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
@@ -52,10 +56,12 @@ class WebfluxLoggingAutoConfiguration {
         loggingProperties: LoggingProperties,
         loggingDecisionComponent: LoggingDecisionComponent,
         serverCodecConfigurer: ServerCodecConfigurer,
+        logger: Logger,
     ) = BodyParametersExtractor(
         loggingProperties,
         loggingDecisionComponent,
-        serverCodecConfigurer
+        serverCodecConfigurer,
+        logger,
     )
 
     @Bean
@@ -74,20 +80,25 @@ class WebfluxLoggingAutoConfiguration {
     @ConditionalOnMissingBean(ParametersMasker::class)
     fun parametersMasker() = ParametersMasker()
 
-    // TODO: create interfaces for all components
+    @Bean
+    @ConditionalOnMissingBean(LoggingCache::class)
+    fun loggingCache(): LoggingCache<String, Boolean> =
+        InternalLoggingCache()
+
     @Bean
     @ConditionalOnMissingBean(LoggingDecisionComponent::class)
     fun loggingDecisionComponent(
         loggingProperties: LoggingProperties,
-        logger: JsonLogger,
+        logger: Logger,
+        loggingCache: LoggingCache<String, Boolean>
     ) = LoggingDecisionComponent(
         loggingProperties,
-        logger
+        logger,
+        loggingCache
     )
 
-    // TODO: create interfaces for all components
     @Bean
-    @ConditionalOnMissingBean(JsonLogger::class)
+    @ConditionalOnMissingBean(Logger::class)
     fun logger(
         objectMapper: ObjectMapper
     ) = JsonLogger(
@@ -100,7 +111,7 @@ class WebfluxLoggingAutoConfiguration {
         loggingProperties: LoggingProperties,
         parametersExtractor: ParametersExtractor,
         loggingDecisionComponent: LoggingDecisionComponent,
-        logger: JsonLogger,
+        logger: Logger,
     ) = LoggingFilter(
         loggingProperties,
         parametersExtractor,

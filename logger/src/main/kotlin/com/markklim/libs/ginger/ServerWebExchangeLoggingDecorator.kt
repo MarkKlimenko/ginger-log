@@ -3,7 +3,7 @@ package com.markklim.libs.ginger
 import com.markklim.libs.ginger.dao.CommonLogArgs
 import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.extractor.ParametersExtractor
-import com.markklim.libs.ginger.logger.JsonLogger
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import org.springframework.http.codec.multipart.Part
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -21,7 +21,7 @@ class ServerWebExchangeLoggingDecorator(
     private val parametersExtractor: ParametersExtractor,
     commonLogArgs: CommonLogArgs,
     requestLoggingState: RequestLoggingState,
-    logger: JsonLogger
+    logger: Logger
 ) : ServerWebExchangeDecorator(exchange) {
     private val requestDecorator: ServerHttpRequestDecorator =
         ServerHttpRequestLoggingDecorator(

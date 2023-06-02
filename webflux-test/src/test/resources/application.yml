@@ -20,12 +20,13 @@ logging:
           - ".*"
         exclude:
           - "Auth"
+          - "Content-Length"
         masked:
           - property: "Authorization"
-            substitution-value: "token"
+            substitution-value: "a***"
           - property: "Auth-Info"
             value-pattern: "password.*"
-            substitution-value: "password"
+            substitution-value: "p***"
     query-params:
       properties:
         include:
@@ -35,7 +36,7 @@ logging:
         masked:
           - property: "param1"
             value-pattern: ".*"
-            substitution-value: "***"
+            substitution-value: "pa**"
     body:
       enabled: true
       uris:

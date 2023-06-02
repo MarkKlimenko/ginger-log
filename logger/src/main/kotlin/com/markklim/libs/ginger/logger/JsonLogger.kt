@@ -2,33 +2,20 @@ package com.markklim.libs.ginger.logger
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
-import org.slf4j.event.Level
 
 class JsonLogger(
-    val objectMapper: ObjectMapper
-) {
+    private val objectMapper: ObjectMapper
+) : Logger {
     private val log: org.slf4j.Logger = LoggerFactory.getLogger(Logger::class.java)
 
-    fun isInfoEnabled() = log.isInfoEnabled
+    override fun isInfoEnabled(): Boolean = log.isInfoEnabled
 
-    fun isErrorEnabled() = log.isErrorEnabled
-
-    fun info(value: Any) {
+    override fun info(value: Any) {
         log.info(serialize(value))
     }
 
-    fun error(value: Any) {
-        log.error(serialize(value))
-    }
-
-    fun log(level: Level, value: Any) {
-        when (level) {
-            Level.WARN -> log.warn(serialize(value))
-            Level.ERROR -> log.error(serialize(value))
-            Level.DEBUG -> log.debug(serialize(value))
-            Level.TRACE -> log.trace(serialize(value))
-            Level.INFO -> log.info(serialize(value))
-        }
+    override fun error(value: String, e: Throwable) {
+        log.error(value, e)
     }
 
     private fun serialize(value: Any): String =

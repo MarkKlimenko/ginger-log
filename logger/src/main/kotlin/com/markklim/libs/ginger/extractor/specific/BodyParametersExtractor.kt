@@ -1,8 +1,8 @@
 package com.markklim.libs.ginger.extractor.specific
 
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
-import mu.KLogging
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.Hints
 import org.springframework.core.io.buffer.DataBuffer
@@ -23,6 +23,7 @@ class BodyParametersExtractor(
     private val loggingProperties: LoggingProperties,
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val serverCodecConfigurer: ServerCodecConfigurer,
+    private val logger: Logger,
 ) {
     fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean {
         val bodyLogProperties: LoggingProperties.LoggedBodySettings = loggingProperties.http.body
@@ -86,7 +87,7 @@ class BodyParametersExtractor(
         }
     }
 
-    private companion object : KLogging() {
+    private companion object {
         private val MULTIPART_DATA_TYPE: ResolvableType =
             ResolvableType.forClassWithGenerics(MultiValueMap::class.java, String::class.java, Part::class.java)
 

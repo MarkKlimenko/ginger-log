@@ -6,7 +6,7 @@ import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.dao.ResponseLogArgs
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
-import com.markklim.libs.ginger.logger.JsonLogger
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.formattedBody
 import com.markklim.libs.ginger.utils.isMultipart
@@ -21,7 +21,7 @@ class LoggingFilter(
     private val loggingProperties: LoggingProperties,
     private val parametersExtractor: ParametersExtractor,
     private val loggingDecisionComponent: LoggingDecisionComponent,
-    private val logger: JsonLogger
+    private val logger: Logger
 ) : WebFilter {
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
@@ -78,6 +78,10 @@ class LoggingFilter(
                         logger.info(logArgs)
                         Mono.empty()
                     })
+                    .onErrorResume {
+                        logger.error("Logging error", it)
+                        Mono.empty()
+                    }
                     .then(Mono.empty())
             } else {
                 decorator.request.body
@@ -90,6 +94,10 @@ class LoggingFilter(
                         logger.info(logArgs)
                         Mono.empty()
                     })
+                    .onErrorResume {
+                        logger.error("Logging error", it)
+                        Mono.empty()
+                    }
                     .then(Mono.empty())
             }
         }
@@ -108,14 +116,9 @@ class LoggingFilter(
                 common = commonLogArgs,
                 code = parametersExtractor.getResponseStatusCode(exchange),
                 headers = null,
-                timeSpent = requestLoggingState.timeSpent()
             )
 
-            if (exchange.response.statusCode?.isError == true) {
-                logger.error(logArgs)
-            } else {
-                logger.info(logArgs)
-            }
+            logger.info(logArgs)
         }
     }
 }

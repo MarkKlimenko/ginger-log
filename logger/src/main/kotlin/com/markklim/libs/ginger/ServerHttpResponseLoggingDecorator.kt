@@ -4,7 +4,7 @@ import com.markklim.libs.ginger.dao.CommonLogArgs
 import com.markklim.libs.ginger.dao.RequestLoggingState
 import com.markklim.libs.ginger.dao.ResponseLogArgs
 import com.markklim.libs.ginger.extractor.ParametersExtractor
-import com.markklim.libs.ginger.logger.JsonLogger
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.properties.LoggingProperties.BinaryContentLoggingStatus.ENABLED
 import com.markklim.libs.ginger.utils.isBinaryContent
@@ -24,7 +24,7 @@ class ServerHttpResponseLoggingDecorator(
     private val requestLoggingState: RequestLoggingState,
     private val commonLogArgs: CommonLogArgs,
     private val parametersExtractor: ParametersExtractor,
-    private val logger: JsonLogger
+    private val logger: Logger
 ) : ServerHttpResponseDecorator(exchange.response) {
 
     override fun writeWith(body: Publisher<out DataBuffer>): Mono<Void> {
@@ -39,6 +39,7 @@ class ServerHttpResponseLoggingDecorator(
             )
         } else {
             logResponseBody(null)
+            // TODO: rm deprecated
             super.writeWith(body.toFlux())
         }
     }
@@ -48,20 +49,13 @@ class ServerHttpResponseLoggingDecorator(
             common = commonLogArgs,
             headers = parametersExtractor.getResponseHeaders(delegate),
             code = parametersExtractor.getResponseStatusCode(delegate),
-            timeSpent = requestLoggingState.timeSpent(),
         )
 
         if (dataBuffer != null && dataBuffer.isNotEmpty()) {
             logArgs.body = parametersExtractor.getBodyField(dataBuffer)
         }
 
-        if (delegate.statusCode?.is4xxClientError == true) {
-            logger.log(loggingProperties.clientErrorsLevel, logArgs)
-        } else if (delegate.statusCode?.isError == true) {
-            logger.error(logArgs)
-        } else {
-            logger.info(logArgs)
-        }
+        logger.info(logArgs)
         requestLoggingState.responseLogged = true
     }
 

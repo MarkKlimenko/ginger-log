@@ -1,6 +1,7 @@
 package com.markklim.libs.ginger.decision
 
-import com.markklim.libs.ginger.logger.JsonLogger
+import com.markklim.libs.ginger.cache.LoggingCache
+import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.utils.getContentType
 import com.markklim.libs.ginger.utils.getRequestMethod
@@ -10,29 +11,28 @@ import java.util.regex.Pattern
 
 class LoggingDecisionComponent(
     private val loggingProperties: LoggingProperties,
-    private val jsonLogger: JsonLogger,
+    private val logger: Logger,
+    private val loggingCache: LoggingCache<String, Boolean>,
 ) {
-    private val isUriLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isMethodLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isContentTypeLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+    fun isLoggingAllowed(exchange: ServerWebExchange): Boolean {
+        return try {
+            logger.isInfoEnabled()
+                && isUriAllowedForLogging(exchange.getRequestUri())
+                && isMethodAllowedForLogging(exchange.getRequestMethod())
+                && isContentTypeAllowedForLogging(exchange.getContentType())
+        } catch (e: Throwable) {
+            logger.error("Logging error: ", e)
+            return false
+        }
+    }
 
-    private val isBodyLogAllowedByUriCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isHeaderLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isQueryParamsLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-
-
-    fun isLoggingAllowed(exchange: ServerWebExchange): Boolean =
-        jsonLogger.isInfoEnabled()
-            && isUriAllowedForLogging(exchange.getRequestUri())
-            && isMethodAllowedForLogging(exchange.getRequestMethod())
-            && isContentTypeAllowedForLogging(exchange.getContentType())
 
     private fun isUriAllowedForLogging(uri: String): Boolean =
         isLogActionAllowed(
             uri,
             loggingProperties.http.uris.include,
             loggingProperties.http.uris.exclude,
-            isUriLogAllowedCache,
+            "uriLog",
         )
 
     private fun isMethodAllowedForLogging(method: String): Boolean =
@@ -40,7 +40,7 @@ class LoggingDecisionComponent(
             method,
             loggingProperties.http.methods.include,
             loggingProperties.http.methods.exclude,
-            isMethodLogAllowedCache,
+            "methodLog",
         )
 
     private fun isContentTypeAllowedForLogging(contentType: String): Boolean =
@@ -48,7 +48,7 @@ class LoggingDecisionComponent(
             contentType,
             loggingProperties.http.contentTypes.include,
             loggingProperties.http.contentTypes.exclude,
-            isContentTypeLogAllowedCache,
+            "contentTypeLog",
         )
 
     fun isRequestBodyByUrlAllowedForLogging(exchange: ServerWebExchange): Boolean =
@@ -56,7 +56,7 @@ class LoggingDecisionComponent(
             exchange.getRequestUri(),
             loggingProperties.http.body.uris.include,
             loggingProperties.http.body.uris.exclude,
-            isBodyLogAllowedByUriCache
+            "bodyByUriLog"
         )
 
     fun isHeaderAllowedForLogging(header: String): Boolean =
@@ -64,7 +64,7 @@ class LoggingDecisionComponent(
             header,
             loggingProperties.http.headers.properties.include,
             loggingProperties.http.headers.properties.exclude,
-            isHeaderLogAllowedCache
+            "headerLog"
         )
 
     fun isQueryParamsAllowedForLogging(queryParam: String): Boolean =
@@ -72,26 +72,26 @@ class LoggingDecisionComponent(
             queryParam,
             loggingProperties.http.queryParams.properties.include,
             loggingProperties.http.queryParams.properties.exclude,
-            isQueryParamsLogAllowedCache
+            "queryParamsLog"
         )
 
     private fun isLogActionAllowed(
         value: String,
         incPatterns: List<Pattern>,
         excPatterns: List<Pattern>,
-        cache: MutableMap<String, Boolean>
+        cacheNamespace: String
     ): Boolean {
         if (incPatterns.isEmpty() && excPatterns.isEmpty()) {
             return true
         }
 
-        val isAllowedCached: Boolean? = cache[value]
+        val isAllowedCached: Boolean? = loggingCache.find(cacheNamespace, value)
 
         return if (isAllowedCached != null) {
             isAllowedCached
         } else {
             val isAllowedCalculated: Boolean = calculateInclusion(value, incPatterns, excPatterns)
-            cache[value] = isAllowedCalculated
+            loggingCache.save(cacheNamespace, value, isAllowedCalculated)
             isAllowedCalculated
         }
     }

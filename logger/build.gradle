@@ -43,6 +43,7 @@ repositories {
     mavenCentral()
 }
 
+// TODO: refactor
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -52,6 +53,8 @@ dependencies {
     compileOnly "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
 
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
+
+    implementation "com.github.ben-manes.caffeine:caffeine:3.1.6"
 
     kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 
