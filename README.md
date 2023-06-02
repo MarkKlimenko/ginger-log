@@ -40,9 +40,9 @@ logging:
     headers:
       properties:
         include:
-            - "regex_pattern" # (default: everything included)
+          - "regex_pattern" # (default: everything included)
         exclude:
-            - "regex_pattern" # (default: nothing excluded)
+          - "regex_pattern" # (default: nothing excluded)
         masked:
           - property: "string"
             value-pattern: "regex_pattern" # (default: match any)
@@ -50,9 +50,9 @@ logging:
     query-params:
       properties:
         include:
-            - "regex_pattern" # (default: everything included)
+          - "regex_pattern" # (default: everything included)
         exclude:
-            - "regex_pattern" # (default: nothing excluded)
+          - "regex_pattern" # (default: nothing excluded)
         masked:
           - property: "string"
             value-pattern: "regex_pattern" # (default: match any)
@@ -61,9 +61,9 @@ logging:
       enabled: true
       uris:
         include:
-            - "regex_pattern" # (default: everything included)
+          - "regex_pattern" # (default: everything included)
         exclude:
-            - "regex_pattern" # (default: nothing excluded)
+          - "regex_pattern" # (default: nothing excluded)
       binary-content-logging: DISABLED # ENABLED/DISABLED (default: DISABLED)
       threshold: "1KB" # Java DataSize (default: disabled)
       masked:
