@@ -15,7 +15,6 @@ data class LoggingProperties(
 ) {
     data class HttpLogging(
         val enabled: Boolean = true,
-        val clientErrorsLevel: Level = Level.DEBUG,
         val uris: Patterns = Patterns(),
         val contentTypes: Patterns = Patterns(),
         val methods: Patterns = Patterns(),
