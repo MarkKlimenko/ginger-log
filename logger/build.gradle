@@ -1,9 +1,5 @@
 buildscript {
     ext {
-        coverageExclusion = [
-                '**/**',
-        ]
-
         // library properties
         libraryGroup = 'com.markklim.libs'
         libraryArchivesBaseName = "ginger-log"
@@ -109,8 +105,4 @@ publishing {
 
 signing {
     sign publishing.publications.mavenJava
-}
-
-test {
-    useJUnitPlatform()
 }

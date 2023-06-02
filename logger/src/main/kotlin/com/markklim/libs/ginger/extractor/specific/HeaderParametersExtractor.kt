@@ -13,9 +13,6 @@ class HeaderParametersExtractor(
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val parametersMasker: ParametersMasker,
 ) {
-    // TODO: store caches in one file and add capacity
-    private val isHeaderLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-
     fun extract(request: ServerHttpRequest): Map<String, String> =
         extractHeaders(request.headers)
 
@@ -24,15 +21,7 @@ class HeaderParametersExtractor(
 
     private fun extractHeaders(headers: HttpHeaders): Map<String, String> {
         val params: Map<String, String> = headers.mapValues { extractStringFromList(it.value) }
-            .filter {
-                // TODO: move to loggingDecisionComponent
-                loggingDecisionComponent.isLogActionAllowed(
-                    it.key,
-                    loggingProperties.http.headers.properties.include,
-                    loggingProperties.http.headers.properties.exclude,
-                    isHeaderLogAllowedCache
-                )
-            }
+            .filter { loggingDecisionComponent.isHeaderAllowedForLogging(it.key) }
 
         return parametersMasker.maskParameters(params, loggingProperties.http.headers.properties.masked)
     }

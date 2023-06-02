@@ -12,9 +12,14 @@ class LoggingDecisionComponent(
     private val loggingProperties: LoggingProperties,
     private val jsonLogger: JsonLogger,
 ) {
-    private val isUriAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isMethodAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
-    private val isContentTypeAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+    private val isUriLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+    private val isMethodLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+    private val isContentTypeLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+
+    private val isBodyLogAllowedByUriCache: MutableMap<String, Boolean> = mutableMapOf()
+    private val isHeaderLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+    private val isQueryParamsLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
+
 
     fun isLoggingAllowed(exchange: ServerWebExchange): Boolean =
         jsonLogger.isInfoEnabled()
@@ -27,7 +32,7 @@ class LoggingDecisionComponent(
             uri,
             loggingProperties.http.uris.include,
             loggingProperties.http.uris.exclude,
-            isUriAllowedCache,
+            isUriLogAllowedCache,
         )
 
     private fun isMethodAllowedForLogging(method: String): Boolean =
@@ -35,7 +40,7 @@ class LoggingDecisionComponent(
             method,
             loggingProperties.http.methods.include,
             loggingProperties.http.methods.exclude,
-            isMethodAllowedCache,
+            isMethodLogAllowedCache,
         )
 
     private fun isContentTypeAllowedForLogging(contentType: String): Boolean =
@@ -43,10 +48,34 @@ class LoggingDecisionComponent(
             contentType,
             loggingProperties.http.contentTypes.include,
             loggingProperties.http.contentTypes.exclude,
-            isContentTypeAllowedCache,
+            isContentTypeLogAllowedCache,
         )
 
-    fun isLogActionAllowed(
+    fun isRequestBodyByUrlAllowedForLogging(exchange: ServerWebExchange): Boolean =
+        isLogActionAllowed(
+            exchange.getRequestUri(),
+            loggingProperties.http.body.uris.include,
+            loggingProperties.http.body.uris.exclude,
+            isBodyLogAllowedByUriCache
+        )
+
+    fun isHeaderAllowedForLogging(header: String): Boolean =
+        isLogActionAllowed(
+            header,
+            loggingProperties.http.headers.properties.include,
+            loggingProperties.http.headers.properties.exclude,
+            isHeaderLogAllowedCache
+        )
+
+    fun isQueryParamsAllowedForLogging(queryParam: String): Boolean =
+        isLogActionAllowed(
+            queryParam,
+            loggingProperties.http.queryParams.properties.include,
+            loggingProperties.http.queryParams.properties.exclude,
+            isQueryParamsLogAllowedCache
+        )
+
+    private fun isLogActionAllowed(
         value: String,
         incPatterns: List<Pattern>,
         excPatterns: List<Pattern>,

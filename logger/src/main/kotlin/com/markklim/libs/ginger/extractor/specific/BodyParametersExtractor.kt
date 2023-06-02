@@ -2,7 +2,6 @@ package com.markklim.libs.ginger.extractor.specific
 
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.utils.getRequestUri
 import mu.KLogging
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.Hints
@@ -25,20 +24,13 @@ class BodyParametersExtractor(
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val serverCodecConfigurer: ServerCodecConfigurer,
 ) {
-    private val isBodyLogAllowedByUriCache: MutableMap<String, Boolean> = mutableMapOf()
-
     fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean {
         val bodyLogProperties: LoggingProperties.LoggedBodySettings = loggingProperties.http.body
         if (!bodyLogProperties.enabled) {
             return false
         }
 
-        return loggingDecisionComponent.isLogActionAllowed(
-            exchange.getRequestUri(),
-            bodyLogProperties.uris.include,
-            bodyLogProperties.uris.exclude,
-            isBodyLogAllowedByUriCache
-        )
+        return loggingDecisionComponent.isRequestBodyByUrlAllowedForLogging(exchange)
     }
 
     fun getBodyField(body: String): String = body.maskBody()

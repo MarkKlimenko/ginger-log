@@ -11,18 +11,10 @@ class QueryParametersExtractor(
     private val loggingDecisionComponent: LoggingDecisionComponent,
     private val parametersMasker: ParametersMasker,
 ) {
-    private val isQueryParamsLogAllowedCache: MutableMap<String, Boolean> = mutableMapOf()
 
     fun extract(request: ServerHttpRequest): Map<String, String> {
         val params: Map<String, String> = request.queryParams.mapValues { extractStringFromList(it.value) }
-            .filter {
-                loggingDecisionComponent.isLogActionAllowed(
-                    it.key,
-                    loggingProperties.http.queryParams.properties.include,
-                    loggingProperties.http.queryParams.properties.exclude,
-                    isQueryParamsLogAllowedCache
-                )
-            }
+            .filter { loggingDecisionComponent.isQueryParamsAllowedForLogging(it.key) }
 
         return parametersMasker.maskParameters(params, loggingProperties.http.queryParams.properties.masked)
     }
