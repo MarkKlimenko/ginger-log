@@ -11,6 +11,7 @@ import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.logger.Logger
+import com.markklim.libs.ginger.logger.TextLogger
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -100,10 +101,18 @@ class WebfluxLoggingAutoConfiguration {
     )
 
     @Bean
-    @ConditionalOnMissingBean(Logger::class)
-    fun logger(
+    @ConditionalOnProperty(name = ["logging.logger-type"], havingValue = "json")
+    fun jsonLogger(
         objectMapper: ObjectMapper
     ) = JsonLogger(
+        objectMapper
+    )
+
+    @Bean
+    @ConditionalOnProperty(name = ["logging.logger-type"], havingValue = "text", matchIfMissing = true)
+    fun textLogger(
+        objectMapper: ObjectMapper
+    ) = TextLogger(
         objectMapper
     )
 

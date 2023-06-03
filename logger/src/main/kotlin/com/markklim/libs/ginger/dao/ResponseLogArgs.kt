@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 data class ResponseLogArgs(
     val type: LogType = LogType.HTTP_RESPONSE,
     val common: CommonLogArgs,
-    val headers: Map<String, String>?,
     val code: String,
+    val headers: Map<String, String>?,
     var body: String? = null
 )

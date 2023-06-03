@@ -12,7 +12,8 @@ import javax.validation.constraints.Min
 @ConstructorBinding
 @Validated
 data class LoggingProperties(
-    val http: HttpLogging = HttpLogging()
+    val http: HttpLogging = HttpLogging(),
+    val loggerType: LoggerType = LoggerType.TEXT
 ) {
     data class HttpLogging(
         val enabled: Boolean = true,
@@ -71,4 +72,8 @@ data class LoggingProperties(
         val include: List<Pattern> = emptyList(),
         val exclude: List<Pattern> = emptyList(),
     )
+
+    enum class LoggerType {
+        JSON, TEXT, CUSTOM
+    }
 }

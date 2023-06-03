@@ -14,10 +14,9 @@ class ControllerTest : WebIntegrationTest() {
     fun test(output: CapturedOutput) {
         val entity = Controller.Entity(
             login = "loginValue",
-            password = "5tcutjm45g3-98gvm5crt",
             accessToken = "dfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408v",
-            refreshToken = "kljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowr",
             userInfo = "infoValue",
+            refreshToken = "kljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowrkljvbwovhbowr"
         )
 
         val headers: Map<String, String> = mapOf(
@@ -33,12 +32,12 @@ class ControllerTest : WebIntegrationTest() {
 
         val requestLog: String =
             """
-            {"type":"HTTP_REQUEST","common":{"method":"POST","uri":"/api/v1/test1"},"headers":{"WebTestClient-Request-Id":"1","Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"},"queryParams":{"param1":"pa**","param2":"value ok"},"body":"{\"login\":\"loginValue\",\"password\":\"5tcutjm45g3-98gvm5crt\",\"accessToken\":\"maskedAccessToken\",\"refreshToken\":\"maskedRefreshToken\",\"userInfo\":\"infoValue\"}"}
+            HTTP_REQUEST: POST /api/v1/test1 headers: {"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams: {"param1":"pa**","param2":"value ok"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
             """.trimIndent()
 
         val responseLog: String =
             """
-            {"type":"HTTP_RESPONSE","common":{"method":"POST","uri":"/api/v1/test1"},"headers":{"Content-Type":"application/json"},"code":"no_value","body":"{\"login\":\"loginValue\",\"password\":\"5tcutjm45g3-98gvm5crt\",\"accessToken\":\"maskedAccessToken\",\"refreshToken\":\"maskedRefreshToken\",\"userInfo\":\"infoValue\"}"}
+            HTTP_RESPONSE: no_value POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
             """.trimIndent()
 
         simpleControllerTest(
@@ -97,7 +96,7 @@ class ControllerTest : WebIntegrationTest() {
         Assertions.assertFalse(
             output.out.contains(
                 """
-                    "uri":"/service/status"
+                    "/service/status"
                 """.trimIndent()
             )
         )

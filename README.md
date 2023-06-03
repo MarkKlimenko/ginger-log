@@ -8,12 +8,19 @@ ginger-log
 
 ## Log examples
 
+Text logger
+
+``` text
+HTTP_REQUEST: POST /api/v1/test1 headers: {"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams: {"param1":"pa**","param2":"value ok"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+HTTP_RESPONSE: 200 POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+```
+
 Json logger
 
 ``` text
-2023-06-02 01:09:24.447  INFO [service,124c19e44585c3b7,124c19e44585c3b7] 73273 --- [     parallel-3] c.m.libs.ginger.logger.Logger        : {"type":"HTTP_REQUEST","common":{"method":"GET","uri":"/api/v1/namespaces"},"headers":{"WebTestClient-Request-Id":"11"},"queryParams":{}}
-2023-06-02 01:09:24.453  INFO [service,124c19e44585c3b7,124c19e44585c3b7] 73273 --- [3 @coroutine#35] c.m.libs.ginger.logger.Logger        : {"type":"HTTP_RESPONSE","common":{"method":"GET","uri":"/api/v1/namespaces"},"headers":{"Content-Type":"application/json","Content-Length":"776"},"code":"no_value","body":"{\"id\":\"012b567d-bfb2-4341-861e-c0de2da992ad\"}"}
-``` 
+{"type":"HTTP_REQUEST","common":{"method":"POST","uri":"/api/v1/test1"},"headers":{"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"},"queryParams":{"param1":"pa**","param2":"value ok"},"body":"{\"login\":\"loginValue\",\"accessToken\":\"maskedAccessToken\",\"userInfo\":\"infoValue\",\"refreshToken\":\"maskedRefreshToken\"}"}
+{"type":"HTTP_RESPONSE","common":{"method":"POST","uri":"/api/v1/test1"},"code":"200","headers":{"Content-Type":"application/json"},"body":"{\"login\":\"loginValue\",\"accessToken\":\"maskedAccessToken\",\"userInfo\":\"infoValue\",\"refreshToken\":\"maskedRefreshToken\"}"}
+```
 
 ## Usage
 
@@ -28,6 +35,7 @@ application.yml (more examples in tests [resources](webflux-test%2Fsrc%2Ftest%2F
 
 ```yaml
 logging:
+  logger-type: text # text/json/custom (default: text)
   http:
     enabled: true # true/false (default: true)
     probability: 100 # min=0 max=100 percentage probability of log recording (default: 100)

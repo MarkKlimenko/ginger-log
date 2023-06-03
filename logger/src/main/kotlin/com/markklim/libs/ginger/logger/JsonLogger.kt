@@ -1,6 +1,8 @@
 package com.markklim.libs.ginger.logger
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.markklim.libs.ginger.dao.RequestLogArgs
+import com.markklim.libs.ginger.dao.ResponseLogArgs
 import org.slf4j.LoggerFactory
 
 class JsonLogger(
@@ -10,7 +12,11 @@ class JsonLogger(
 
     override fun isInfoEnabled(): Boolean = log.isInfoEnabled
 
-    override fun info(value: Any) {
+    override fun info(value: RequestLogArgs) {
+        log.info(serialize(value))
+    }
+
+    override fun info(value: ResponseLogArgs) {
         log.info(serialize(value))
     }
 

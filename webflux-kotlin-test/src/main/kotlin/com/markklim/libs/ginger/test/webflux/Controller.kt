@@ -16,9 +16,8 @@ class Controller {
 
     data class Entity(
         val login: String,
-        val password: String,
         val accessToken: String,
-        val refreshToken: String,
         val userInfo: String,
+        val refreshToken: String,
     )
 }
