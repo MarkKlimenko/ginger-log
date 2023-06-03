@@ -6,7 +6,7 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator
 import reactor.core.publisher.Flux
-import reactor.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toFlux
 
 class ServerHttpRequestLoggingDecorator(
     delegate: ServerHttpRequest,

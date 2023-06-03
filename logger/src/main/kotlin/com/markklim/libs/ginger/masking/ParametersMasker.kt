@@ -29,7 +29,7 @@ class ParametersMasker {
 
         if (requiredParam != null) {
             if (rule.valuePattern != null) {
-                if (rule.valuePattern.toRegex().matches(requiredParam)) {
+                if (rule.valuePattern?.toRegex()?.matches(requiredParam) == true) {
                     mutableParams[rule.property] = rule.substitutionValue
                 }
             } else {

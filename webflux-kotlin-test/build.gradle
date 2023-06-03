@@ -6,9 +6,8 @@ buildscript {
 
         // versions
         kotlinVersion = "1.7.22"
-        kotlinLoggingVersion = "2.0.11"
 
-        springBootVersion = "2.7.9"
+        springBootVersion = "2.7.12"
         springManagementVersion = "1.0.15.RELEASE"
 
         junitVersion = "5.8.1"
@@ -30,7 +29,7 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
 
@@ -42,12 +41,12 @@ dependencies {
     implementation project(":logger")
     implementation "org.springframework.boot:spring-boot-starter-webflux"
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
-    implementation "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
+   implementation "org.jetbrains.kotlin:kotlin-reflect"
+   //implementation "org.jetbrains.kotlin:kotlin-stdlib"
+   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
+   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
+   //implementation "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"

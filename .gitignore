@@ -3,5 +3,4 @@
 /build/
 
 # Project exclude paths
-/logger/build/
-/webflux-test/build/
+/*/build/

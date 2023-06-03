@@ -7,11 +7,8 @@ buildscript {
 
         // versions
         kotlinVersion = "1.7.22"
-        kotlinLoggingVersion = "2.0.11"
+        springBootVersion = "2.7.12"
 
-        springBootVersion = "2.7.9"
-
-        junitVersion = "5.8.1"
         codeQualityVersion = "1.1"
     }
 }
@@ -35,7 +32,7 @@ version = libraryVersion
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
 
@@ -43,24 +40,14 @@ repositories {
     mavenCentral()
 }
 
-// TODO: refactor
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.1"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1"
-    compileOnly "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
+    //implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2'
+    implementation "com.github.ben-manes.caffeine:caffeine:3.1.6"
 
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
 
-    implementation "com.github.ben-manes.caffeine:caffeine:3.1.6"
-
     kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 publishing {

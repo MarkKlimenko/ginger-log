@@ -1,3 +1,4 @@
 rootProject.name = 'ginger-log'
 include 'logger'
-include 'webflux-test'
+include 'webflux-kotlin-test'
+include 'webflux-java-test'

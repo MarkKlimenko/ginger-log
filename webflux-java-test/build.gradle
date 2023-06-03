@@ -1,0 +1,46 @@
+buildscript {
+    ext {
+        coverageExclusion = [
+                '**/**',
+        ]
+
+        // versions
+        springBootVersion = "2.7.12"
+        springManagementVersion = "1.0.15.RELEASE"
+
+        junitVersion = "5.8.1"
+        codeQualityVersion = "1.1"
+    }
+}
+
+plugins {
+    id "java"
+
+    id "io.spring.dependency-management" version "$springManagementVersion"
+    id "org.springframework.boot" version "$springBootVersion"
+
+    id "com.markklim.popcorn.quality" version "$codeQualityVersion"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":logger")
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+}
+
+test {
+    useJUnitPlatform()
+}

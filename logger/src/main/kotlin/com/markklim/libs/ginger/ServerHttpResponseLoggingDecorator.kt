@@ -15,7 +15,7 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toFlux
 import reactor.util.context.ContextView
 
 class ServerHttpResponseLoggingDecorator(
