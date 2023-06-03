@@ -27,10 +27,13 @@ class ParametersExtractor(
         )
 
     fun getHeadersFields(request: ServerHttpRequest): Map<String, String> =
-        headerParamsExtractor.extract(request)
+        headerParamsExtractor.extract(request.headers)
+
+    fun getResponseHeaders(response: ServerHttpResponse): Map<String, String> =
+        headerParamsExtractor.extract(response.headers)
 
     fun getQueryParamsFields(request: ServerHttpRequest): Map<String, String> =
-        queryParamsExtractor.extract(request)
+        queryParamsExtractor.extract(request.queryParams)
 
     fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean =
         bodyParamsExtractor.isRequestBodyLoggingEnabled(exchange)
@@ -51,7 +54,4 @@ class ParametersExtractor(
     // TODO: get actual response code
     fun getResponseStatusCode(response: ServerHttpResponse): String =
         response.statusCode?.value()?.toString() ?: EMPTY_VALUE
-
-    fun getResponseHeaders(response: ServerHttpResponse): Map<String, String> =
-        headerParamsExtractor.extract(response)
 }

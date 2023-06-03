@@ -1,6 +1,5 @@
 package com.markklim.libs.ginger.properties
 
-import org.slf4j.event.Level
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.util.unit.DataSize

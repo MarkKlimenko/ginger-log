@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.cache.InternalLoggingCache
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.decision.LoggingDecisionComponent
+import com.markklim.libs.ginger.decision.WebfluxLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.codec.ServerCodecConfigurer
 
+// TODO: add feign logger
 // TODO: create interfaces for all components
 @Configuration
 @EnableConfigurationProperties(LoggingProperties::class)
@@ -91,7 +93,7 @@ class WebfluxLoggingAutoConfiguration {
         loggingProperties: LoggingProperties,
         logger: Logger,
         loggingCache: LoggingCache<String, Boolean>
-    ) = LoggingDecisionComponent(
+    ): LoggingDecisionComponent = WebfluxLoggingDecisionComponent(
         loggingProperties,
         logger,
         loggingCache
