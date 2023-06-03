@@ -1,0 +1,24 @@
+buildscript {
+    ext {
+        coverageExclusion = [
+                '**/**',
+        ]
+
+        // library properties
+        libraryGroup = 'com.markklim.libs'
+        libraryArchivesBaseName = "ginger-log"
+        libraryVersion = "1.1.1"
+
+        // versions
+        kotlinVersion = "1.7.22"
+        kotlinReactorVersion = "1.2.2"
+
+        springBootVersion = "2.7.12"
+        springManagementVersion = "1.0.15.RELEASE"
+
+        caffeineVersion = "3.1.6"
+
+        junitVersion = "5.8.1"
+        codeQualityVersion = "1.1"
+    }
+}

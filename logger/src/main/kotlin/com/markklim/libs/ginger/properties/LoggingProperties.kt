@@ -10,45 +10,45 @@ import java.util.regex.Pattern
 @ConstructorBinding
 @Validated
 data class LoggingProperties(
-    var http: HttpLogging = HttpLogging()
+    val http: HttpLogging = HttpLogging()
 ) {
     data class HttpLogging(
-        var enabled: Boolean = true,
-        var uris: Patterns = Patterns(),
-        var contentTypes: Patterns = Patterns(),
-        var methods: Patterns = Patterns(),
+        val enabled: Boolean = true,
+        val uris: Patterns = Patterns(),
+        val contentTypes: Patterns = Patterns(),
+        val methods: Patterns = Patterns(),
 
-        var headers: LoggedEntitySettings = LoggedEntitySettings(),
-        var queryParams: LoggedEntitySettings = LoggedEntitySettings(),
-        var body: LoggedBodySettings = LoggedBodySettings(),
+        val headers: LoggedEntitySettings = LoggedEntitySettings(),
+        val queryParams: LoggedEntitySettings = LoggedEntitySettings(),
+        val body: LoggedBodySettings = LoggedBodySettings(),
     )
 
     data class LoggedEntitySettings(
-        var properties: EntityPropertiesSettings = EntityPropertiesSettings(),
+        val properties: EntityPropertiesSettings = EntityPropertiesSettings(),
     ) {
         data class EntityPropertiesSettings(
-            var include: List<Pattern> = emptyList(),
-            var exclude: List<Pattern> = emptyList(),
-            var masked: List<MaskedPropertyEntity> = emptyList(),
+            val include: List<Pattern> = emptyList(),
+            val exclude: List<Pattern> = emptyList(),
+            val masked: List<MaskedPropertyEntity> = emptyList(),
         )
 
         data class MaskedPropertyEntity(
-            var property: String,
-            var valuePattern: Pattern?,
-            var substitutionValue: String
+            val property: String,
+            val valuePattern: Pattern?,
+            val substitutionValue: String
         )
     }
 
     data class LoggedBodySettings(
         var enabled: Boolean = false,
-        var uris: Patterns = Patterns(),
-        var binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
-        var threshold: DataSize? = null,
-        var masked: List<MaskedBodyEntity> = emptyList()
+        val uris: Patterns = Patterns(),
+        val binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
+        val threshold: DataSize? = null,
+        val masked: List<MaskedBodyEntity> = emptyList()
     ) {
         data class MaskedBodyEntity(
-            var pattern: Pattern,
-            var substitutionValue: String
+            val pattern: Pattern,
+            val substitutionValue: String
         )
 
         fun isBinaryContentLoggingEnabled(): Boolean =
@@ -61,7 +61,7 @@ data class LoggingProperties(
     }
 
     data class Patterns(
-        var include: List<Pattern> = emptyList(),
-        var exclude: List<Pattern> = emptyList(),
+        val include: List<Pattern> = emptyList(),
+        val exclude: List<Pattern> = emptyList(),
     )
 }

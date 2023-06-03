@@ -1,25 +1,7 @@
-buildscript {
-    ext {
-        coverageExclusion = [
-                '**/**',
-        ]
-
-        // versions
-        kotlinVersion = "1.7.22"
-
-        springBootVersion = "2.7.12"
-        springManagementVersion = "1.0.15.RELEASE"
-
-        junitVersion = "5.8.1"
-        codeQualityVersion = "1.1"
-    }
-}
-
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.noarg" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.allopen" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.jpa" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
 
     id "io.spring.dependency-management" version "$springManagementVersion"
@@ -41,12 +23,10 @@ dependencies {
     implementation project(":logger")
     implementation "org.springframework.boot:spring-boot-starter-webflux"
 
-   implementation "org.jetbrains.kotlin:kotlin-reflect"
-   //implementation "org.jetbrains.kotlin:kotlin-stdlib"
-   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
-   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
-   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
-   //implementation "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"

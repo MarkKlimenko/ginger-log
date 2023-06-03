@@ -1,18 +1,3 @@
-buildscript {
-    ext {
-        // library properties
-        libraryGroup = 'com.markklim.libs'
-        libraryArchivesBaseName = "ginger-log"
-        libraryVersion = "1.1.1"
-
-        // versions
-        kotlinVersion = "1.7.22"
-        springBootVersion = "2.7.12"
-
-        codeQualityVersion = "1.1"
-    }
-}
-
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
@@ -20,7 +5,7 @@ plugins {
 
     id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 
-    id 'java-library'
+    id "java-library"
     id "maven-publish"
     id "signing"
 }
@@ -41,9 +26,9 @@ repositories {
 }
 
 dependencies {
-    //implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2'
-    implementation "com.github.ben-manes.caffeine:caffeine:3.1.6"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "io.projectreactor.kotlin:reactor-kotlin-extensions:$kotlinReactorVersion"
+    implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
 
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
 
