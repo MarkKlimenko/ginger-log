@@ -7,6 +7,7 @@ import com.markklim.libs.ginger.utils.getContentType
 import com.markklim.libs.ginger.utils.getRequestMethod
 import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.web.server.ServerWebExchange
+import java.util.*
 import java.util.regex.Pattern
 
 class WebfluxLoggingDecisionComponent(
@@ -14,9 +15,12 @@ class WebfluxLoggingDecisionComponent(
     private val logger: Logger,
     private val loggingCache: LoggingCache<String, Boolean>,
 ) : LoggingDecisionComponent {
+    private val random = SplittableRandom()
+
     override fun isLoggingAllowed(exchange: ServerWebExchange): Boolean =
         try {
-            logger.isInfoEnabled()
+            logProbabilityEnabled()
+                && logger.isInfoEnabled()
                 && isUriAllowedForLogging(exchange.getRequestUri())
                 && isMethodAllowedForLogging(exchange.getRequestMethod())
                 && isContentTypeAllowedForLogging(exchange.getContentType())
@@ -48,6 +52,9 @@ class WebfluxLoggingDecisionComponent(
             loggingProperties.http.queryParams.properties.exclude,
             "queryParamsLog"
         )
+
+    private fun logProbabilityEnabled(): Boolean =
+        random.nextInt(MIN_PERCENTAGE_INC, MAX_PERCENTAGE_EXC) <= loggingProperties.http.probability
 
     private fun isUriAllowedForLogging(uri: String): Boolean =
         isLogActionAllowed(
@@ -117,5 +124,10 @@ class WebfluxLoggingDecisionComponent(
             ?: false
 
         return !excluded
+    }
+
+    private companion object {
+        const val MIN_PERCENTAGE_INC = 1
+        const val MAX_PERCENTAGE_EXC = 101
     }
 }

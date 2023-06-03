@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.util.unit.DataSize
 import org.springframework.validation.annotation.Validated
 import java.util.regex.Pattern
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 
 @ConfigurationProperties(prefix = "logging")
 @ConstructorBinding
@@ -14,6 +16,11 @@ data class LoggingProperties(
 ) {
     data class HttpLogging(
         val enabled: Boolean = true,
+
+        @Min(0)
+        @Max(100)
+        val probability: Int = 100,
+
         val uris: Patterns = Patterns(),
         val contentTypes: Patterns = Patterns(),
         val methods: Patterns = Patterns(),

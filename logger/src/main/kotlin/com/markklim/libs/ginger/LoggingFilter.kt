@@ -16,7 +16,7 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
 // TODO: log on error
-// TODO: add log probability
+// TODO: add load tests
 class LoggingFilter(
     private val loggingProperties: LoggingProperties,
     private val parametersExtractor: ParametersExtractor,

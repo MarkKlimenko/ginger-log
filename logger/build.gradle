@@ -28,9 +28,11 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     implementation "io.projectreactor.kotlin:reactor-kotlin-extensions:$kotlinReactorVersion"
-    implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
 
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
+
+    implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
 
     kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 }
