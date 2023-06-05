@@ -1,8 +1,12 @@
 package com.markklim.libs.ginger.logger
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.markklim.libs.ginger.dao.RequestLogArgs
-import com.markklim.libs.ginger.dao.ResponseLogArgs
+import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
+import com.markklim.libs.ginger.dao.log.http.LogType
+import com.markklim.libs.ginger.dao.log.http.RequestLogArgs
+import com.markklim.libs.ginger.dao.log.http.RequestLogBody
+import com.markklim.libs.ginger.dao.log.http.ResponseLogArgs
+import com.markklim.libs.ginger.dao.log.http.ResponseLogBody
 import org.slf4j.LoggerFactory
 
 class TextLogger(
@@ -16,7 +20,15 @@ class TextLogger(
         log.info(serialize(value))
     }
 
+    override fun info(value: RequestLogBody) {
+        log.info(serialize(value))
+    }
+
     override fun info(value: ResponseLogArgs) {
+        log.info(serialize(value))
+    }
+
+    override fun info(value: ResponseLogBody) {
         log.info(serialize(value))
     }
 
@@ -25,15 +37,23 @@ class TextLogger(
     }
 
     private fun serialize(log: RequestLogArgs): String {
-        return "${log.type}: ${log.common.method} ${log.common.uri}" +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
             getLogGroup("headers", log.headers) +
-            getLogGroup("queryParams", log.queryParams) +
+            getLogGroup("queryParams", log.queryParams)
+    }
+
+    private fun serialize(log: RequestLogBody): String {
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
             getLogGroup("body", log.body, false)
     }
 
     private fun serialize(log: ResponseLogArgs): String {
-        return "${log.type}: ${log.code} ${log.common.method} ${log.common.uri}" +
-            getLogGroup("headers", log.headers) +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} ${log.code}" +
+            getLogGroup("headers", log.headers)
+    }
+
+    private fun serialize(log: ResponseLogBody): String {
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
             getLogGroup("body", log.body, false)
     }
 
@@ -58,4 +78,8 @@ class TextLogger(
             ""
         }
     }
+
+    private fun LogType.pad(): String = this.name.padEnd(12)
+
+    private fun CommonLogArgs.methodPad(): String = this.method.padEnd(7)
 }

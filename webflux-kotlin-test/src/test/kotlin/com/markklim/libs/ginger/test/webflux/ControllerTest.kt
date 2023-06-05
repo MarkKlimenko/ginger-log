@@ -1,18 +1,25 @@
 package com.markklim.libs.ginger.test.webflux
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.markklim.libs.ginger.test.webflux.dto.TestEntity
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.system.CapturedOutput
 import org.springframework.boot.test.system.OutputCaptureExtension
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 
+// TODO: add test for 400
 @ExtendWith(OutputCaptureExtension::class)
 class ControllerTest : WebIntegrationTest() {
     @Test
-    fun test(output: CapturedOutput) {
-        val entity = Controller.Entity(
+    fun postWithBodyTest(output: CapturedOutput) {
+        val requestUri = "/api/v1/log/enabled"
+
+        val request = TestEntity(
             login = "loginValue",
             accessToken = "dfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408vdfjhvborfbhvrovb408v",
             userInfo = "infoValue",
@@ -40,27 +47,20 @@ class ControllerTest : WebIntegrationTest() {
             HTTP_RESPONSE: no_value POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
             """.trimIndent()
 
-        simpleControllerTest(
-            entity,
-            headers,
-            queryParams,
-            requestLog,
-            responseLog,
-            output
+        wireMockServer.stubFor(
+            WireMock.post(
+                WireMock.urlPathMatching("/client$requestUri.*"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withBody(objectMapper.writeValueAsString(request))
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withStatus(HttpStatus.OK.value())
+                )
         )
-    }
 
-    private fun simpleControllerTest(
-        request: Any,
-        headers: Map<String, String>,
-        queryParams: Map<String, List<String>>,
-        requestLog: String,
-        responseLog: String,
-        output: CapturedOutput
-    ) {
         webTestClient.post()
             .uri { uriFunction ->
-                uriFunction.path("/api/v1/test1")
+                uriFunction.path(requestUri)
                     .queryParams(LinkedMultiValueMap(queryParams))
                     .build()
             }
@@ -80,6 +80,50 @@ class ControllerTest : WebIntegrationTest() {
             output.out.contains(responseLog)
         )
     }
+
+    @Test
+    fun getWithoutBodyTest(output: CapturedOutput) {
+        val requestUri = "/api/v1/log/enabled"
+
+        val headers: Map<String, String> = mapOf(
+            "Authorization" to "Bearer ijfnvoifvbvbvocinj",
+        )
+
+        val requestLog: String =
+            """
+            HTTP_REQUEST: POST /api/v1/test1 headers: {"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams: {"param1":"pa**","param2":"value ok"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
+
+        val responseLog: String =
+            """
+            HTTP_RESPONSE: no_value POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.get(
+                WireMock.urlPathMatching("/client$requestUri.*"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(HttpStatus.NO_CONTENT.value())
+                )
+        )
+
+        webTestClient.get()
+            .uri { uriFunction -> uriFunction.path(requestUri).build() }
+            .headers { header -> headers.forEach { header.add(it.key, it.value) } }
+            .exchange()
+            .expectStatus()
+            .isOk
+
+        Assertions.assertTrue(
+            output.out.contains(requestLog)
+        )
+
+        Assertions.assertTrue(
+            output.out.contains(responseLog)
+        )
+    }
+
 
     @Test
     fun serviceStatusTest(output: CapturedOutput) {

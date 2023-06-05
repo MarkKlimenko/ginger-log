@@ -1,4 +1,4 @@
-package com.markklim.libs.ginger.dao
+package com.markklim.libs.ginger.dao.log.http
 
 data class CommonLogArgs(
     val method: String,

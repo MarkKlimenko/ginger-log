@@ -1,2 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.markklim.libs.ginger.WebfluxLoggingAutoConfiguration
+com.markklim.libs.ginger.LoggerAutoConfiguration,\
+com.markklim.libs.ginger.WebfluxLoggingAutoConfiguration,\
+com.markklim.libs.ginger.ReactiveFeignLoggingAutoConfiguration

@@ -32,6 +32,10 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
 
+    compileOnly "com.playtika.reactivefeign:feign-reactor-webclient:$feignReactorVersion"
+    compileOnly "com.playtika.reactivefeign:feign-reactor-cloud:$feignReactorVersion"
+    compileOnly "com.playtika.reactivefeign:feign-reactor-spring-configuration:$feignReactorVersion"
+
     implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
 
     kapt "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"

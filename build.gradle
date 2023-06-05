@@ -15,6 +15,9 @@ buildscript {
 
         springBootVersion = "2.7.12"
         springManagementVersion = "1.0.15.RELEASE"
+        springCloudVersion = "2021.0.5"
+
+        feignReactorVersion = "3.1.1"
 
         caffeineVersion = "3.1.6"
 

@@ -36,7 +36,7 @@ application.yml (more examples in tests [resources](webflux-test%2Fsrc%2Ftest%2F
 ```yaml
 logging:
   logger-type: text # text/json/custom (default: text)
-  http:
+  http: # http/feign
     enabled: true # true/false (default: true)
     probability: 100 # min=0 max=100 percentage probability of log recording (default: 100)
     uris:
@@ -86,6 +86,8 @@ logging:
       masked:
         - pattern: "regex_pattern"
           substitutionValue: "string"
+  feign: # http/feign
+    enabled: true
 ```
 
 ## Loggers

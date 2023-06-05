@@ -1,5 +1,5 @@
 logging:
-#  logger-type: json
+  #logger-type: json
   http:
     uris:
       include:
@@ -8,7 +8,8 @@ logging:
         - "/service/status"
     content-types:
       include:
-        - "application/json"
+        - ".*"
+        - ""
       exclude:
         - "application/octet-stream"
     methods:
@@ -52,3 +53,9 @@ logging:
           substitutionValue: '"accessToken":"maskedAccessToken"'
         - pattern: '"refreshToken":".*?"'
           substitutionValue: '"refreshToken":"maskedRefreshToken"'
+
+
+
+client:
+  api-client:
+    url: http://localhost:${wiremock.server.port}

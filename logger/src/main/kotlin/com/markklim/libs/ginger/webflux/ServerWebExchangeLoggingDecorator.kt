@@ -1,7 +1,7 @@
-package com.markklim.libs.ginger
+package com.markklim.libs.ginger.webflux
 
-import com.markklim.libs.ginger.dao.CommonLogArgs
-import com.markklim.libs.ginger.dao.RequestLoggingState
+import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
+import com.markklim.libs.ginger.dao.LoggingState
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
@@ -17,22 +17,22 @@ import reactor.core.publisher.Mono
 
 class ServerWebExchangeLoggingDecorator(
     private val exchange: ServerWebExchange,
-    private val loggingProperties: LoggingProperties,
+    private val properties: LoggingProperties.WebLoggingProperties,
     private val parametersExtractor: ParametersExtractor,
     commonLogArgs: CommonLogArgs,
-    requestLoggingState: RequestLoggingState,
+    requestLoggingState: LoggingState,
     logger: Logger
 ) : ServerWebExchangeDecorator(exchange) {
     private val requestDecorator: ServerHttpRequestDecorator =
         ServerHttpRequestLoggingDecorator(
             exchange.request,
-            loggingProperties.http
+            properties
         )
 
     private val responseDecorator: ServerHttpResponseDecorator =
         ServerHttpResponseLoggingDecorator(
             exchange,
-            loggingProperties.http,
+            properties,
             requestLoggingState,
             commonLogArgs,
             parametersExtractor,
@@ -44,7 +44,7 @@ class ServerWebExchangeLoggingDecorator(
     override fun getResponse(): ServerHttpResponse = responseDecorator
 
     override fun getMultipartData(): Mono<MultiValueMap<String, Part>> {
-        return if (loggingProperties.http.body.enabled) {
+        return if (properties.body.enabled) {
             parametersExtractor.getBodyMultipartData(requestDecorator, exchange)
         } else {
             super.getMultipartData()

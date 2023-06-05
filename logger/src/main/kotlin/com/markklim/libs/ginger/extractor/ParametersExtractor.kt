@@ -1,12 +1,10 @@
 package com.markklim.libs.ginger.extractor
 
-import com.markklim.libs.ginger.dao.CommonLogArgs
+import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
-import com.markklim.libs.ginger.utils.getRequestMethod
-import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.codec.multipart.Part
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -20,23 +18,22 @@ class ParametersExtractor(
     private val queryParamsExtractor: QueryParametersExtractor,
     private val bodyParamsExtractor: BodyParametersExtractor,
 ) {
-    fun getCommonFields(exchange: ServerWebExchange) =
-        CommonLogArgs(
-            method = exchange.getRequestMethod(),
-            uri = exchange.getRequestUri()
-        )
+    fun getCommonFields(
+        requestUri: String,
+        requestMethod: String,
+    ) = CommonLogArgs(
+        method = requestMethod,
+        uri = requestUri
+    )
 
-    fun getHeadersFields(request: ServerHttpRequest): Map<String, String> =
-        headerParamsExtractor.extract(request.headers)
+    fun getHeadersFields(headers: Map<String, List<String>>): Map<String, String> =
+        headerParamsExtractor.extract(headers)
 
-    fun getResponseHeaders(response: ServerHttpResponse): Map<String, String> =
-        headerParamsExtractor.extract(response.headers)
+    fun getQueryParamsFields(params: Map<String, List<String>>): Map<String, String> =
+        queryParamsExtractor.extract(params)
 
-    fun getQueryParamsFields(request: ServerHttpRequest): Map<String, String> =
-        queryParamsExtractor.extract(request.queryParams)
-
-    fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean =
-        bodyParamsExtractor.isRequestBodyLoggingEnabled(exchange)
+    fun isRequestBodyLoggingEnabled(requestUri: String): Boolean =
+        bodyParamsExtractor.isRequestBodyLoggingEnabled(requestUri)
 
     fun getBodyField(body: String): String =
         bodyParamsExtractor.getBodyField(body)

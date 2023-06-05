@@ -1,8 +1,10 @@
 package com.markklim.libs.ginger.extractor.specific
 
-import com.markklim.libs.ginger.decision.LoggingDecisionComponent
+import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
+import com.markklim.libs.ginger.properties.LoggingProperties.WebLoggingProperties
+import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.Hints
 import org.springframework.core.io.buffer.DataBuffer
@@ -20,25 +22,25 @@ import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
 
 class BodyParametersExtractor(
-    private val loggingProperties: LoggingProperties,
-    private val loggingDecisionComponent: LoggingDecisionComponent,
+    private val properties: WebLoggingProperties,
+    private val loggingDecisionComponent: WebLoggingDecisionComponent,
     private val serverCodecConfigurer: ServerCodecConfigurer,
     private val logger: Logger,
 ) {
-    fun isRequestBodyLoggingEnabled(exchange: ServerWebExchange): Boolean {
-        val bodyLogProperties: LoggingProperties.LoggedBodySettings = loggingProperties.http.body
+    fun isRequestBodyLoggingEnabled(requestUri: String): Boolean {
+        val bodyLogProperties: LoggingProperties.LoggedBodySettings = properties.body
         if (!bodyLogProperties.enabled) {
             return false
         }
 
-        return loggingDecisionComponent.isRequestBodyByUrlAllowedForLogging(exchange)
+        return loggingDecisionComponent.isRequestBodyByUrlAllowedForLogging(requestUri)
     }
 
     fun getBodyField(body: String): String = body.maskBody()
 
     fun getBodyField(buffer: DataBuffer): String {
         val readableByteCount: Int = buffer.readableByteCount()
-        val threshold: Int = loggingProperties.http.body.threshold?.toBytes()?.toInt() ?: readableByteCount
+        val threshold: Int = properties.body.threshold?.toBytes()?.toInt() ?: readableByteCount
         val bytesCount: Int = Integer.min(threshold, readableByteCount)
 
         return buffer.toString(buffer.readPosition(), bytesCount, StandardCharsets.UTF_8)
@@ -57,7 +59,7 @@ class BodyParametersExtractor(
     private fun String.maskBody(): String {
         var body = this
 
-        loggingProperties.http.body.masked.forEach {
+        properties.body.masked.forEach {
             body = body.replace(it.pattern.toRegex(), it.substitutionValue)
         }
 

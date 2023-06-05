@@ -12,10 +12,11 @@ import javax.validation.constraints.Min
 @ConstructorBinding
 @Validated
 data class LoggingProperties(
-    val http: HttpLogging = HttpLogging(),
+    val http: WebLoggingProperties = WebLoggingProperties(),
+    val feign: WebLoggingProperties = WebLoggingProperties(),
     val loggerType: LoggerType = LoggerType.TEXT
 ) {
-    data class HttpLogging(
+    data class WebLoggingProperties(
         val enabled: Boolean = true,
 
         @Min(0)

@@ -3,80 +3,81 @@ package com.markklim.libs.ginger.decision
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.utils.getContentType
-import com.markklim.libs.ginger.utils.getRequestMethod
-import com.markklim.libs.ginger.utils.getRequestUri
-import org.springframework.web.server.ServerWebExchange
+import com.markklim.libs.ginger.properties.LoggingProperties.WebLoggingProperties
 import java.util.*
 import java.util.regex.Pattern
 
-class WebfluxLoggingDecisionComponent(
-    private val loggingProperties: LoggingProperties,
+class DefaultWebLoggingDecisionComponent(
+    private val properties: WebLoggingProperties,
     private val logger: Logger,
     private val loggingCache: LoggingCache<String, Boolean>,
-) : LoggingDecisionComponent {
+) : WebLoggingDecisionComponent {
     private val random = SplittableRandom()
 
-    override fun isLoggingAllowed(exchange: ServerWebExchange): Boolean =
+    override fun isLoggingAllowed(
+        requestUri: String,
+        requestMethod: String,
+        contentType: String,
+    ): Boolean =
         try {
             logProbabilityEnabled()
                 && logger.isInfoEnabled()
-                && isUriAllowedForLogging(exchange.getRequestUri())
-                && isMethodAllowedForLogging(exchange.getRequestMethod())
-                && isContentTypeAllowedForLogging(exchange.getContentType())
+                && isUriAllowedForLogging(requestUri)
+                && isMethodAllowedForLogging(requestMethod)
+                && isContentTypeAllowedForLogging(contentType)
         } catch (e: Throwable) {
             logger.error("Logging error: ", e)
             false
         }
 
-    override fun isRequestBodyByUrlAllowedForLogging(exchange: ServerWebExchange): Boolean =
+    override fun isRequestBodyByUrlAllowedForLogging(requestUri: String): Boolean =
         isLogActionAllowed(
-            exchange.getRequestUri(),
-            loggingProperties.http.body.uris.include,
-            loggingProperties.http.body.uris.exclude,
+            requestUri,
+            properties.body.uris.include,
+            properties.body.uris.exclude,
             "bodyByUriLog"
         )
 
     override fun isHeaderAllowedForLogging(header: String): Boolean =
         isLogActionAllowed(
             header,
-            loggingProperties.http.headers.properties.include,
-            loggingProperties.http.headers.properties.exclude,
+            properties.headers.properties.include,
+            properties.headers.properties.exclude,
             "headerLog"
         )
 
     override fun isQueryParamsAllowedForLogging(queryParam: String): Boolean =
         isLogActionAllowed(
             queryParam,
-            loggingProperties.http.queryParams.properties.include,
-            loggingProperties.http.queryParams.properties.exclude,
+            properties.queryParams.properties.include,
+            properties.queryParams.properties.exclude,
             "queryParamsLog"
         )
 
     private fun logProbabilityEnabled(): Boolean =
-        random.nextInt(MIN_PERCENTAGE_INC, MAX_PERCENTAGE_EXC) <= loggingProperties.http.probability
+        random.nextInt(MIN_PERCENTAGE_INC, MAX_PERCENTAGE_EXC) <= properties.probability
 
     private fun isUriAllowedForLogging(uri: String): Boolean =
         isLogActionAllowed(
             uri,
-            loggingProperties.http.uris.include,
-            loggingProperties.http.uris.exclude,
+            properties.uris.include,
+            properties.uris.exclude,
             "uriLog",
         )
 
     private fun isMethodAllowedForLogging(method: String): Boolean =
         isLogActionAllowed(
             method,
-            loggingProperties.http.methods.include,
-            loggingProperties.http.methods.exclude,
+            properties.methods.include,
+            properties.methods.exclude,
             "methodLog",
         )
 
     private fun isContentTypeAllowedForLogging(contentType: String): Boolean =
         isLogActionAllowed(
             contentType,
-            loggingProperties.http.contentTypes.include,
-            loggingProperties.http.contentTypes.exclude,
+            properties.contentTypes.include,
+            properties.contentTypes.exclude,
             "contentTypeLog",
         )
 

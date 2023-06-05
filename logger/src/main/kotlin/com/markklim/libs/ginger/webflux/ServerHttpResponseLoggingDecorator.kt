@@ -1,8 +1,10 @@
-package com.markklim.libs.ginger
+package com.markklim.libs.ginger.webflux
 
-import com.markklim.libs.ginger.dao.CommonLogArgs
-import com.markklim.libs.ginger.dao.RequestLoggingState
-import com.markklim.libs.ginger.dao.ResponseLogArgs
+import com.markklim.libs.ginger.dao.LoggingState
+import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
+import com.markklim.libs.ginger.dao.log.http.LogType
+import com.markklim.libs.ginger.dao.log.http.ResponseLogArgs
+import com.markklim.libs.ginger.dao.log.http.ResponseLogBody
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
@@ -20,8 +22,8 @@ import reactor.util.context.ContextView
 
 class ServerHttpResponseLoggingDecorator(
     exchange: ServerWebExchange,
-    private val loggingProperties: LoggingProperties.HttpLogging,
-    private val requestLoggingState: RequestLoggingState,
+    private val loggingProperties: LoggingProperties.WebLoggingProperties,
+    private val requestLoggingState: LoggingState,
     private val commonLogArgs: CommonLogArgs,
     private val parametersExtractor: ParametersExtractor,
     private val logger: Logger
@@ -33,29 +35,34 @@ class ServerHttpResponseLoggingDecorator(
                 .transformDeferredContextual { dataBufferMono: Mono<DataBuffer?>, _: ContextView? ->
                     dataBufferMono
                         .doOnNext {
-                            logResponseBody(it)
+                            logResponse(it)
                         }
                 }
             )
         } else {
-            logResponseBody(null)
-            // TODO: rm deprecated
+            logResponse(null)
             super.writeWith(body.toFlux())
         }
     }
 
-    private fun logResponseBody(dataBuffer: DataBuffer?) {
+    private fun logResponse(dataBuffer: DataBuffer?) {
         val logArgs = ResponseLogArgs(
+            type = LogType.HTTP_RESP,
             common = commonLogArgs,
-            headers = parametersExtractor.getResponseHeaders(delegate),
+            headers = parametersExtractor.getHeadersFields(delegate.headers),
             code = parametersExtractor.getResponseStatusCode(delegate),
         )
+        logger.info(logArgs)
 
         if (dataBuffer != null && dataBuffer.isNotEmpty()) {
-            logArgs.body = parametersExtractor.getBodyField(dataBuffer)
+            val logBody = ResponseLogBody(
+                type = LogType.HTTP_RESP_B,
+                common = commonLogArgs,
+                body = parametersExtractor.getBodyField(dataBuffer)
+            )
+            logger.info(logBody)
         }
 
-        logger.info(logArgs)
         requestLoggingState.responseLogged = true
     }
 

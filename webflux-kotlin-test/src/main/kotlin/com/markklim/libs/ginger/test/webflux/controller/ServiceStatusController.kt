@@ -1,4 +1,4 @@
-package com.markklim.libs.ginger.test.webflux
+package com.markklim.libs.ginger.test.webflux.controller
 
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping

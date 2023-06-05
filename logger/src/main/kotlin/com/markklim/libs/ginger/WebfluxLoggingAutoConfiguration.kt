@@ -1,132 +1,119 @@
 package com.markklim.libs.ginger
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.cache.InternalLoggingCache
 import com.markklim.libs.ginger.cache.LoggingCache
-import com.markklim.libs.ginger.decision.LoggingDecisionComponent
-import com.markklim.libs.ginger.decision.WebfluxLoggingDecisionComponent
+import com.markklim.libs.ginger.decision.DefaultWebLoggingDecisionComponent
+import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
-import com.markklim.libs.ginger.logger.JsonLogger
 import com.markklim.libs.ginger.logger.Logger
-import com.markklim.libs.ginger.logger.TextLogger
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
+import com.markklim.libs.ginger.webflux.LoggingFilter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
 import org.springframework.http.codec.ServerCodecConfigurer
 
 // TODO: add feign logger
 // TODO: create interfaces for all components
 @Configuration
-@EnableConfigurationProperties(LoggingProperties::class)
+@ConditionalOnProperty(
+    name = ["logging.http.enabled"],
+    havingValue = "true",
+    matchIfMissing = true
+)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-@ConditionalOnProperty(name = ["logging.http.web-flux.enabled"], matchIfMissing = true)
+@DependsOn("loggerAutoConfiguration")
+@ComponentScan(basePackages = ["com.markklim.libs.ginger"])
+@EnableConfigurationProperties(LoggingProperties::class)
 class WebfluxLoggingAutoConfiguration {
     @Bean
-    @ConditionalOnMissingBean(HeaderParametersExtractor::class)
-    fun headerParametersExtractor(
+    @ConditionalOnMissingBean(name = ["webfluxLoggingDecisionComponent"])
+    fun webfluxLoggingDecisionComponent(
         loggingProperties: LoggingProperties,
-        loggingDecisionComponent: LoggingDecisionComponent,
+        logger: Logger,
+        webfluxLoggingCache: LoggingCache<String, Boolean>
+    ): WebLoggingDecisionComponent = DefaultWebLoggingDecisionComponent(
+        loggingProperties.http,
+        logger,
+        webfluxLoggingCache
+    )
+
+    @Bean
+    @ConditionalOnMissingBean(name = ["webfluxHeaderParametersExtractor"])
+    fun webfluxHeaderParametersExtractor(
+        loggingProperties: LoggingProperties,
+        webfluxLoggingDecisionComponent: WebLoggingDecisionComponent,
         parametersMasker: ParametersMasker,
     ) = HeaderParametersExtractor(
-        loggingProperties,
-        loggingDecisionComponent,
+        loggingProperties.http,
+        webfluxLoggingDecisionComponent,
         parametersMasker,
     )
 
     @Bean
-    @ConditionalOnMissingBean(QueryParametersExtractor::class)
-    fun queryParamsExtractor(
+    @ConditionalOnMissingBean(name = ["webfluxQueryParamsExtractor"])
+    fun webfluxQueryParamsExtractor(
         loggingProperties: LoggingProperties,
-        loggingDecisionComponent: LoggingDecisionComponent,
+        webfluxLoggingDecisionComponent: WebLoggingDecisionComponent,
         parametersMasker: ParametersMasker,
     ) = QueryParametersExtractor(
-        loggingProperties,
-        loggingDecisionComponent,
+        loggingProperties.http,
+        webfluxLoggingDecisionComponent,
         parametersMasker,
     )
 
     @Bean
-    @ConditionalOnMissingBean(BodyParametersExtractor::class)
-    fun bodyParamsExtractor(
+    @ConditionalOnMissingBean(name = ["webfluxBodyParamsExtractor"])
+    fun webfluxBodyParamsExtractor(
         loggingProperties: LoggingProperties,
-        loggingDecisionComponent: LoggingDecisionComponent,
+        webfluxLoggingDecisionComponent: WebLoggingDecisionComponent,
         serverCodecConfigurer: ServerCodecConfigurer,
         logger: Logger,
     ) = BodyParametersExtractor(
-        loggingProperties,
-        loggingDecisionComponent,
+        loggingProperties.http,
+        webfluxLoggingDecisionComponent,
         serverCodecConfigurer,
         logger,
     )
 
-    @Bean
-    @ConditionalOnMissingBean(ParametersExtractor::class)
-    fun parametersExtractor(
-        headerParamsExtractor: HeaderParametersExtractor,
-        queryParamsExtractor: QueryParametersExtractor,
-        bodyParamsExtractor: BodyParametersExtractor,
-    ) = ParametersExtractor(
-        headerParamsExtractor,
-        queryParamsExtractor,
-        bodyParamsExtractor,
-    )
 
     @Bean
-    @ConditionalOnMissingBean(ParametersMasker::class)
-    fun parametersMasker() = ParametersMasker()
-
-    @Bean
-    @ConditionalOnMissingBean(LoggingCache::class)
-    fun loggingCache(): LoggingCache<String, Boolean> =
+    @ConditionalOnMissingBean(name = ["webfluxLoggingCache"])
+    fun webfluxLoggingCache(): LoggingCache<String, Boolean> =
         InternalLoggingCache()
 
     @Bean
-    @ConditionalOnMissingBean(LoggingDecisionComponent::class)
-    fun loggingDecisionComponent(
-        loggingProperties: LoggingProperties,
-        logger: Logger,
-        loggingCache: LoggingCache<String, Boolean>
-    ): LoggingDecisionComponent = WebfluxLoggingDecisionComponent(
-        loggingProperties,
-        logger,
-        loggingCache
-    )
-
-    @Bean
-    @ConditionalOnProperty(name = ["logging.logger-type"], havingValue = "json")
-    fun jsonLogger(
-        objectMapper: ObjectMapper
-    ) = JsonLogger(
-        objectMapper
-    )
-
-    @Bean
-    @ConditionalOnProperty(name = ["logging.logger-type"], havingValue = "text", matchIfMissing = true)
-    fun textLogger(
-        objectMapper: ObjectMapper
-    ) = TextLogger(
-        objectMapper
+    @ConditionalOnMissingBean(name = ["webfluxParametersExtractor"])
+    fun webfluxParametersExtractor(
+        webfluxHeaderParametersExtractor: HeaderParametersExtractor,
+        webfluxQueryParamsExtractor: QueryParametersExtractor,
+        webfluxBodyParamsExtractor: BodyParametersExtractor,
+    ) = ParametersExtractor(
+        webfluxHeaderParametersExtractor,
+        webfluxQueryParamsExtractor,
+        webfluxBodyParamsExtractor,
     )
 
     @Bean
     @ConditionalOnMissingBean(LoggingFilter::class)
     fun loggingFilter(
         loggingProperties: LoggingProperties,
-        parametersExtractor: ParametersExtractor,
-        loggingDecisionComponent: LoggingDecisionComponent,
+        webfluxParametersExtractor: ParametersExtractor,
+        webfluxLoggingDecisionComponent: WebLoggingDecisionComponent,
         logger: Logger,
     ) = LoggingFilter(
-        loggingProperties,
-        parametersExtractor,
-        loggingDecisionComponent,
+        loggingProperties.http,
+        webfluxParametersExtractor,
+        webfluxLoggingDecisionComponent,
         logger
     )
 }

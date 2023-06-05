@@ -1,4 +1,4 @@
-package com.markklim.libs.ginger
+package com.markklim.libs.ginger.webflux
 
 import com.markklim.libs.ginger.properties.LoggingProperties
 import org.springframework.core.io.buffer.DataBuffer
@@ -10,7 +10,7 @@ import reactor.kotlin.core.publisher.toFlux
 
 class ServerHttpRequestLoggingDecorator(
     delegate: ServerHttpRequest,
-    val loggingProperties: LoggingProperties.HttpLogging
+    val loggingProperties: LoggingProperties.WebLoggingProperties
 ) : ServerHttpRequestDecorator(delegate) {
 
     override fun getBody(): Flux<DataBuffer> =
