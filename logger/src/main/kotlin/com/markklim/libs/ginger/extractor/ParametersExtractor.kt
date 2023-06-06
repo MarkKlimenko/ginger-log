@@ -4,7 +4,6 @@ import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
-import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.codec.multipart.Part
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -45,10 +44,6 @@ class ParametersExtractor(
         bodyParamsExtractor.getBodyMultipartData(request, exchange)
 
     // TODO: get actual response code
-    fun getResponseStatusCode(exchange: ServerWebExchange): String =
-        exchange.response.statusCode?.value()?.toString() ?: EMPTY_VALUE
-
-    // TODO: get actual response code
-    fun getResponseStatusCode(response: ServerHttpResponse): String =
-        response.statusCode?.value()?.toString() ?: EMPTY_VALUE
+    fun getResponseStatusCode(response: ServerHttpResponse): String? =
+        response.statusCode?.value()?.toString()
 }

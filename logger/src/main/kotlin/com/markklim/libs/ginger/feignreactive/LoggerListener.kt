@@ -1,10 +1,12 @@
 package com.markklim.libs.ginger.feignreactive
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.dao.FeignReactiveLogContext
 import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
 import com.markklim.libs.ginger.dao.log.http.LogType
 import com.markklim.libs.ginger.dao.log.http.RequestLogArgs
 import com.markklim.libs.ginger.dao.log.http.RequestLogBody
+import com.markklim.libs.ginger.dao.log.http.ResponseLogArgs
 import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
@@ -12,6 +14,7 @@ import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.utils.parseQueryParams
 import feign.MethodMetadata
 import feign.Target
+import org.slf4j.MDC
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import reactivefeign.client.ReactiveHttpRequest
 import reactivefeign.client.ReactiveHttpResponse
@@ -21,6 +24,7 @@ class LoggerListener(
     private val loggingDecisionComponent: WebLoggingDecisionComponent,
     private val parametersExtractor: ParametersExtractor,
     private val logger: Logger,
+    private val objectMapper: ObjectMapper
 ) : ReactiveLoggerListener<FeignReactiveLogContext> {
 
     override fun requestStarted(
@@ -43,18 +47,19 @@ class LoggerListener(
             )
         }
 
-        val logArgs = RequestLogArgs(
+        val log = RequestLogArgs(
             type = LogType.FEIGN_REQ,
             common = commonLogArgs,
             headers = parametersExtractor.getHeadersFields(request.headers()),
             queryParams = parametersExtractor.getQueryParamsFields(request.uri().parseQueryParams()),
         )
 
-        logger.info(logArgs)
+        logger.info(log)
 
         return FeignReactiveLogContext(
             isLogRequired = true,
-            commonLogArgs = commonLogArgs
+            commonLogArgs = commonLogArgs,
+            mdcMap = MDC.getCopyOfContextMap()
         )
     }
 
@@ -62,38 +67,63 @@ class LoggerListener(
 
     override fun bodySent(body: Any?, context: FeignReactiveLogContext) {
         if (!context.isLogRequired
-            && body == null
-            && !parametersExtractor.isRequestBodyLoggingEnabled(context.commonLogArgs.uri)
+            || body == null
+            || !parametersExtractor.isRequestBodyLoggingEnabled(context.commonLogArgs.uri)
         ) {
             return
         }
 
-        // TODO: add trace id
         // TODO: log multipart
-        val logBody = RequestLogBody(
+        val log = RequestLogBody(
             type = LogType.FEIGN_REQ_B,
             common = context.commonLogArgs,
-            body = parametersExtractor.getBodyField(body.toString())
+            body = parametersExtractor.getBodyField(objectMapper.writeValueAsString(body))
         )
-        logger.info(logBody)
+
+        if (context.mdcMap != null) {
+            MDC.setContextMap(context.mdcMap)
+        }
+
+        try {
+            logger.info(log)
+        } finally {
+            MDC.clear()
+        }
     }
 
     override fun responseReceived(response: ReactiveHttpResponse<*>, context: FeignReactiveLogContext) {
-        response.bodyData()
-        response
-        println()
+        if (!context.isLogRequired) {
+            return
+        }
 
+        val log = ResponseLogArgs(
+            type = LogType.FEIGN_RESP,
+            common = context.commonLogArgs,
+            code = response.status().toString(),
+            headers = parametersExtractor.getHeadersFields(response.headers())
+        )
+        logger.info(log)
     }
 
     override fun logResponseBody(): Boolean = true
 
     override fun bodyReceived(body: Any?, context: FeignReactiveLogContext) {
-        println()
+        if (!context.isLogRequired
+            || body == null
+            || !parametersExtractor.isRequestBodyLoggingEnabled(context.commonLogArgs.uri)
+        ) {
+            return
+        }
 
+        val log = RequestLogBody(
+            type = LogType.FEIGN_RESP_B,
+            common = context.commonLogArgs,
+            body = parametersExtractor.getBodyField(objectMapper.writeValueAsString(body))
+        )
+        logger.info(log)
     }
 
     override fun errorReceived(throwable: Throwable?, context: FeignReactiveLogContext?) {
-        println()
-
+        // TODO: test and implement
     }
 }

@@ -28,6 +28,6 @@ class ApiController(
     @PostMapping("disabled")
     suspend fun postDisabled(
         @RequestHeader headers: Map<String, String>,
-        @RequestBody request: TestEntity
-    ): TestEntity = testService.postDisabled(headers, request)
+        @RequestBody request: String
+    ): String = testService.postDisabled(headers, request)
 }

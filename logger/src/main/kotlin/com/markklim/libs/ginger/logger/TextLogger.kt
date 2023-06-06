@@ -37,23 +37,24 @@ class TextLogger(
     }
 
     private fun serialize(log: RequestLogArgs): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
             getLogGroup("headers", log.headers) +
             getLogGroup("queryParams", log.queryParams)
     }
 
     private fun serialize(log: RequestLogBody): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
             getLogGroup("body", log.body, false)
     }
 
     private fun serialize(log: ResponseLogArgs): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} ${log.code}" +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
+            getLogGroup("code", log.code, false) +
             getLogGroup("headers", log.headers)
     }
 
     private fun serialize(log: ResponseLogBody): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri}" +
+        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
             getLogGroup("body", log.body, false)
     }
 
@@ -73,7 +74,7 @@ class TextLogger(
         }
 
         return if (processedValue != "{}") {
-            " $groupType: $processedValue"
+            " $groupType=$processedValue"
         } else {
             ""
         }

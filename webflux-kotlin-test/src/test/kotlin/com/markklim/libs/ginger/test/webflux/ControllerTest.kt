@@ -37,16 +37,6 @@ class ControllerTest : WebIntegrationTest() {
             "param2" to listOf("value ok"),
         )
 
-        val requestLog: String =
-            """
-            HTTP_REQUEST: POST /api/v1/test1 headers: {"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams: {"param1":"pa**","param2":"value ok"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
-            """.trimIndent()
-
-        val responseLog: String =
-            """
-            HTTP_RESPONSE: no_value POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
-            """.trimIndent()
-
         wireMockServer.stubFor(
             WireMock.post(
                 WireMock.urlPathMatching("/client$requestUri.*"))
@@ -72,12 +62,52 @@ class ControllerTest : WebIntegrationTest() {
             .expectBody()
             .json(ObjectMapper().writeValueAsString(request))
 
-        Assertions.assertTrue(
-            output.out.contains(requestLog)
+        output.containsLog(
+            """
+            HTTP_REQ    : POST    /api/v1/log/enabled : headers={"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams={"param1":"pa**","param2":"value ok"}
+            """.trimIndent()
         )
 
-        Assertions.assertTrue(
-            output.out.contains(responseLog)
+        output.containsLog(
+            """
+            HTTP_REQ_B  : POST    /api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            HTTP_RESP   : POST    /api/v1/log/enabled : headers={"Content-Type":"application/json"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            HTTP_RESP_B : POST    /api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_REQ   : POST    /client/api/v1/log/enabled : headers={"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_REQ_B : POST    /client/api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_RESP  : POST    /client/api/v1/log/enabled : code=200 headers={"Content-Type":"application/json","Vary":"Accept-Encoding, User-Agent","Transfer-Encoding":"chunked"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_RESP_B: POST    /client/api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
+            """.trimIndent()
         )
     }
 
@@ -88,16 +118,6 @@ class ControllerTest : WebIntegrationTest() {
         val headers: Map<String, String> = mapOf(
             "Authorization" to "Bearer ijfnvoifvbvbvocinj",
         )
-
-        val requestLog: String =
-            """
-            HTTP_REQUEST: POST /api/v1/test1 headers: {"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams: {"param1":"pa**","param2":"value ok"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
-            """.trimIndent()
-
-        val responseLog: String =
-            """
-            HTTP_RESPONSE: no_value POST /api/v1/test1 headers: {"Content-Type":"application/json"} body: {"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
-            """.trimIndent()
 
         wireMockServer.stubFor(
             WireMock.get(
@@ -115,34 +135,87 @@ class ControllerTest : WebIntegrationTest() {
             .expectStatus()
             .isOk
 
-        Assertions.assertTrue(
-            output.out.contains(requestLog)
+        output.containsLog(
+            """
+            HTTP_REQ    : GET     /api/v1/log/enabled : headers={"Authorization":"a***"}
+            """.trimIndent()
         )
 
-        Assertions.assertTrue(
-            output.out.contains(responseLog)
+        output.containsLog(
+            """
+            HTTP_RESP   : GET     /api/v1/log/enabled :
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_REQ   : GET     /client/api/v1/log/enabled : headers={"Authorization":"a***"}
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            FEIGN_RESP  : GET     /client/api/v1/log/enabled : code=204
+            """.trimIndent()
         )
     }
 
-
     @Test
-    fun serviceStatusTest(output: CapturedOutput) {
+    fun logDisabledTest(output: CapturedOutput) {
+        val requestUri = "/api/v1/log/disabled"
+
+        wireMockServer.stubFor(
+            WireMock.post(
+                WireMock.urlPathMatching("/client$requestUri.*"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withBody(objectMapper.writeValueAsString("feign_request"))
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withStatus(HttpStatus.OK.value())
+                )
+        )
         webTestClient.post()
             .uri { uriFunction ->
-                uriFunction.path("/service/status")
+                uriFunction.path(requestUri)
                     .build()
             }
+            .bodyValue("http_request")
             .exchange()
             .expectStatus()
             .isOk
             .expectBody()
 
-        Assertions.assertFalse(
-            output.out.contains(
-                """
-                    "/service/status"
-                """.trimIndent()
-            )
+        output.notContainsLog(
+            """
+            Logger
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun log400Test(output: CapturedOutput) {
+        val requestUri = "/api/v1/log/enabled"
+
+        webTestClient.post()
+            .uri { uriFunction ->
+                uriFunction.path(requestUri)
+                    .build()
+            }
+            .exchange()
+            .expectStatus()
+            .is4xxClientError
+            .expectBody()
+
+        output.containsLog(
+            """
+            HTTP_REQ    : POST    /api/v1/log/enabled
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            HTTP_RESP   : POST    /api/v1/log/enabled : code=400
+            """.trimIndent()
         )
     }
 }

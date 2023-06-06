@@ -21,6 +21,6 @@ class TestService(
 
     suspend fun postDisabled(
         headers: Map<String, String>,
-        request: TestEntity
-    ): TestEntity = apiClient.postDisabled(headers, request).awaitSingle()
+        request: String
+    ): String = apiClient.postDisabled(headers, request).awaitSingle()
 }

@@ -27,6 +27,6 @@ interface ApiClient {
     @PostMapping("/client/api/v1/log/disabled")
     fun postDisabled(
         @RequestHeader headers: Map<String, String>,
-        @RequestBody request: TestEntity
-    ): Mono<TestEntity>
+        @RequestBody request: String
+    ): Mono<String>
 }

@@ -130,10 +130,11 @@ class LoggingFilter(
         exchange: ServerWebExchange
     ) {
         if (!requestLoggingState.responseLogged) {
+            // TODO: log body for 400
             val logArgs = ResponseLogArgs(
                 type = LogType.HTTP_RESP,
                 common = commonLogArgs,
-                code = parametersExtractor.getResponseStatusCode(exchange),
+                code = parametersExtractor.getResponseStatusCode(exchange.response),
                 headers = null,
             )
 

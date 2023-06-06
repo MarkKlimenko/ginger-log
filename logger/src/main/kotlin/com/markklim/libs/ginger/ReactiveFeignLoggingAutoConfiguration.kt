@@ -1,5 +1,6 @@
 package com.markklim.libs.ginger
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.cache.InternalLoggingCache
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.decision.DefaultWebLoggingDecisionComponent
@@ -107,10 +108,12 @@ class ReactiveFeignLoggingAutoConfiguration {
         logger: Logger,
         feignParametersExtractor: ParametersExtractor,
         feignLoggingDecisionComponent: WebLoggingDecisionComponent,
+        objectMapper: ObjectMapper
     ): LoggerListener =
         LoggerListener(
             feignLoggingDecisionComponent,
             feignParametersExtractor,
-            logger
+            logger,
+            objectMapper,
         )
 }
