@@ -77,7 +77,7 @@ class LoggerListener(
         val log = RequestLogBody(
             type = LogType.FEIGN_REQ_B,
             common = context.commonLogArgs,
-            body = parametersExtractor.getBodyField(objectMapper.writeValueAsString(body))
+            body = serializeBodyValue(body)
         )
 
         if (context.mdcMap != null) {
@@ -118,7 +118,7 @@ class LoggerListener(
         val log = RequestLogBody(
             type = LogType.FEIGN_RESP_B,
             common = context.commonLogArgs,
-            body = parametersExtractor.getBodyField(objectMapper.writeValueAsString(body))
+            body = serializeBodyValue(body)
         )
         logger.info(log)
     }
@@ -126,4 +126,15 @@ class LoggerListener(
     override fun errorReceived(throwable: Throwable?, context: FeignReactiveLogContext?) {
         // TODO: test and implement
     }
+
+    private fun serializeBodyValue(body: Any?): String {
+        return try {
+            parametersExtractor.getBodyField(objectMapper.writeValueAsString(body))
+        } catch (e: Exception) {
+            "Logger error: ${e.message}"
+        }
+    }
+
+    // TODO: add threshold for feign
+    // TODO: fix error for No serializer found for class java.io.ByteArrayInputStream and no properties discovered to create BeanSerializer
 }
