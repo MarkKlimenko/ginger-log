@@ -3,7 +3,6 @@ package com.markklim.libs.ginger.test.webflux
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.markklim.libs.ginger.test.webflux.dto.TestEntity
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.system.CapturedOutput

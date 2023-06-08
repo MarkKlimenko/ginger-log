@@ -4,7 +4,6 @@ import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.properties.LoggingProperties.WebLoggingProperties
-import com.markklim.libs.ginger.utils.getRequestUri
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.Hints
 import org.springframework.core.io.buffer.DataBuffer

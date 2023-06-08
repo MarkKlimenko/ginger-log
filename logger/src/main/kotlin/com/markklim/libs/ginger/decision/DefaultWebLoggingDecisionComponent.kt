@@ -2,7 +2,6 @@ package com.markklim.libs.ginger.decision
 
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.logger.Logger
-import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.properties.LoggingProperties.WebLoggingProperties
 import java.util.*
 import java.util.regex.Pattern

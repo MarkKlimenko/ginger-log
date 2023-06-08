@@ -32,6 +32,9 @@ fun HttpMessage.isMultipart(): Boolean =
     this.headers.contentType?.let { MULTIPART_FORM_DATA.isCompatibleWith(it) } ?: false
 
 private val QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?")
+private const val GROUP_NAME_INDEX = 1
+private const val GROUP_EQ_INDEX = 2
+private const val GROUP_VALUE_INDEX = 3
 
 // TODO: refactor parseQueryParams
 fun URI.parseQueryParams(): MultiValueMap<String, String> {
@@ -41,9 +44,9 @@ fun URI.parseQueryParams(): MultiValueMap<String, String> {
     if (query != null) {
         val matcher = QUERY_PATTERN.matcher(query)
         while (matcher.find()) {
-            val name = UriUtils.decode(matcher.group(1), StandardCharsets.UTF_8)
-            val eq = matcher.group(2)
-            var value = matcher.group(3)
+            val name = UriUtils.decode(matcher.group(GROUP_NAME_INDEX), StandardCharsets.UTF_8)
+            val eq = matcher.group(GROUP_EQ_INDEX)
+            var value = matcher.group(GROUP_VALUE_INDEX)
             value = if (value != null) {
                 UriUtils.decode(value, StandardCharsets.UTF_8)
             } else {

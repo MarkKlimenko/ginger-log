@@ -37,26 +37,29 @@ class TextLogger(
     }
 
     private fun serialize(log: RequestLogArgs): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
-            getLogGroup("headers", log.headers) +
-            getLogGroup("queryParams", log.queryParams)
+        return getLogHeader(log.type, log.common) +
+            getLogGroup(HEADERS_PREFIX, log.headers) +
+            getLogGroup(QUERY_PARAMS_PREFIX, log.queryParams)
     }
 
     private fun serialize(log: RequestLogBody): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
-            getLogGroup("body", log.body, false)
+        return getLogHeader(log.type, log.common) +
+            getLogGroup(BODY_PREFIX, log.body, false)
     }
 
     private fun serialize(log: ResponseLogArgs): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
-            getLogGroup("code", log.code, false) +
-            getLogGroup("headers", log.headers)
+        return getLogHeader(log.type, log.common) +
+            getLogGroup(CODE_PREFIX, log.code, false) +
+            getLogGroup(HEADERS_PREFIX, log.headers)
     }
 
     private fun serialize(log: ResponseLogBody): String {
-        return "${log.type.pad()}: ${log.common.methodPad()} ${log.common.uri} :" +
-            getLogGroup("body", log.body, false)
+        return getLogHeader(log.type, log.common) +
+            getLogGroup(BODY_PREFIX, log.body, false)
     }
+
+    private fun getLogHeader(logType: LogType, commonLogArgs: CommonLogArgs): String =
+        "${logType.pad()}: ${commonLogArgs.methodPad()} ${commonLogArgs.uri} :"
 
     private fun getLogGroup(
         groupType: String,
@@ -80,7 +83,17 @@ class TextLogger(
         }
     }
 
-    private fun LogType.pad(): String = this.name.padEnd(12)
+    private fun LogType.pad(): String = this.name.padEnd(LOG_TYPE_LENGTH)
 
-    private fun CommonLogArgs.methodPad(): String = this.method.padEnd(7)
+    private fun CommonLogArgs.methodPad(): String = this.method.padEnd(METHOD_LENGTH)
+
+    private companion object {
+        const val HEADERS_PREFIX = "headers"
+        const val QUERY_PARAMS_PREFIX = "queryParams"
+        const val BODY_PREFIX = "body"
+        const val CODE_PREFIX = "code"
+
+        const val LOG_TYPE_LENGTH = 12
+        const val METHOD_LENGTH = 7
+    }
 }
