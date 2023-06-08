@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.http.codec.ServerCodecConfigurer
 
-// TODO: add feign logger
 // TODO: create interfaces for all components
 @Configuration
 @ConditionalOnProperty(
