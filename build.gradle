@@ -7,7 +7,7 @@ buildscript {
         // library properties
         libraryGroup = 'com.markklim.libs'
         libraryArchivesBaseName = "ginger-log"
-        libraryVersion = "1.2.1"
+        libraryVersion = "1.2.2"
 
         // versions
         kotlinVersion = "1.7.22"
@@ -22,6 +22,7 @@ buildscript {
         caffeineVersion = "3.1.6"
 
         junitVersion = "5.8.1"
-        codeQualityVersion = "1.1"
+        awaitilityVersion = "4.2.0"
+        codeQualityVersion = "1.2.1"
     }
 }

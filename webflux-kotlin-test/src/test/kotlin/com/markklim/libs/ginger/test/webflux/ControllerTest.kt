@@ -142,12 +142,6 @@ class ControllerTest : WebIntegrationTest() {
 
         output.containsLog(
             """
-            HTTP_RESP   : GET     /api/v1/log/enabled :
-            """.trimIndent()
-        )
-
-        output.containsLog(
-            """
             FEIGN_REQ   : GET     /client/api/v1/log/enabled : headers={"Authorization":"a***"}
             """.trimIndent()
         )
@@ -155,6 +149,12 @@ class ControllerTest : WebIntegrationTest() {
         output.containsLog(
             """
             FEIGN_RESP  : GET     /client/api/v1/log/enabled : code=204
+            """.trimIndent()
+        )
+
+        output.containsLog(
+            """
+            HTTP_RESP   : GET     /api/v1/log/enabled :
             """.trimIndent()
         )
     }

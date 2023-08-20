@@ -43,6 +43,7 @@ dependencies {
     testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
