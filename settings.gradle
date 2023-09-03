@@ -1,4 +1,5 @@
 rootProject.name = 'ginger-log'
 include 'logger'
-include 'webflux-kotlin-test'
+include 'webflux-feignreactive-kotlin-test'
+include 'web-feign-kotlin-test'
 include 'webflux-java-test'

@@ -1,0 +1,116 @@
+logging:
+  #logger-type: json
+  http:
+    uris:
+      include:
+        - "/api/.*"
+      exclude:
+        - "/api/v1/log/disabled"
+    content-types:
+      include:
+        - ".*"
+        - ""
+      exclude:
+        - "application/octet-stream"
+    methods:
+      exclude:
+        - "OPTIONAL"
+    headers:
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+          - "Content-Length"
+          - "WebTestClient-Request-Id"
+        masked:
+          - property: "Authorization"
+            substitution-value: "a***"
+          - property: "Auth-Info"
+            value-pattern: "password.*"
+            substitution-value: "p***"
+    query-params:
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+        masked:
+          - property: "param1"
+            value-pattern: ".*"
+            substitution-value: "pa**"
+    body:
+      enabled: true
+      uris:
+        include:
+          - "/api/v1/.*"
+        exclude:
+          - "/api/v2/.*"
+      binary-content-logging: "ENABLED"
+      threshold: "1KB"
+      masked:
+        - pattern: '"accessToken":".*?"'
+          substitutionValue: '"accessToken":"maskedAccessToken"'
+        - pattern: '"refreshToken":".*?"'
+          substitutionValue: '"refreshToken":"maskedRefreshToken"'
+  feign:
+    uris:
+      include:
+        - "/client/api/.*"
+      exclude:
+        - "/client/api/v1/log/disabled"
+    content-types:
+      include:
+        - ".*"
+        - ""
+      exclude:
+        - "application/octet-stream"
+    methods:
+      exclude:
+        - "OPTIONAL"
+    headers:
+      # TODO: ignore case
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+          - "Content-Length"
+          - "WebTestClient-Request-Id"
+          - "Matched-Stub-Id"
+        masked:
+          - property: "Authorization"
+            substitution-value: "a***"
+          - property: "Auth-Info"
+            value-pattern: "password.*"
+            substitution-value: "p***"
+    query-params:
+      properties:
+        include:
+          - ".*"
+        exclude:
+          - "Auth"
+        masked:
+          - property: "param1"
+            value-pattern: ".*"
+            substitution-value: "pa**"
+    body:
+      enabled: true
+      uris:
+        include:
+          - "/client/api/v1/.*"
+        exclude:
+          - "/api/v2/.*"
+      binary-content-logging: "ENABLED"
+      threshold: "1KB"
+      masked:
+        - pattern: '"accessToken":".*?"'
+          substitutionValue: '"accessToken":"maskedAccessToken"'
+        - pattern: '"refreshToken":".*?"'
+          substitutionValue: '"refreshToken":"maskedRefreshToken"'
+
+
+
+client:
+  api-client:
+    url: http://localhost:${wiremock.server.port}
