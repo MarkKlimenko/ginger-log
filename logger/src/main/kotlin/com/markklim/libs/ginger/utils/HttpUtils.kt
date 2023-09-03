@@ -1,5 +1,3 @@
-@file:JvmName("HttpUtils")
-
 package com.markklim.libs.ginger.utils
 
 import org.springframework.http.HttpMessage

@@ -13,10 +13,13 @@ class ServerHttpRequestLoggingDecorator(
     val loggingProperties: LoggingProperties.WebLoggingProperties
 ) : ServerHttpRequestDecorator(delegate) {
 
-    override fun getBody(): Flux<DataBuffer> =
+    private val requestBody = lazy {
         if (loggingProperties.body.enabled) {
             DataBufferUtils.join(super.getBody()).toFlux().cache()
         } else {
             super.getBody()
         }
+    }
+
+    override fun getBody(): Flux<DataBuffer> = requestBody.value
 }
