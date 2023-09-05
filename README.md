@@ -5,6 +5,8 @@ ginger-log
 ## Supported frameworks:
 
 - webflux
+- feign
+- reactive feign
 
 ## Log examples
 
