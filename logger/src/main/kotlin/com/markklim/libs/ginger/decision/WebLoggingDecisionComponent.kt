@@ -2,7 +2,7 @@ package com.markklim.libs.ginger.decision
 
 interface WebLoggingDecisionComponent {
     fun isLoggingAllowed(
-        requestUri: String,
+        path: String,
         requestMethod: String,
         contentType: String,
     ): Boolean

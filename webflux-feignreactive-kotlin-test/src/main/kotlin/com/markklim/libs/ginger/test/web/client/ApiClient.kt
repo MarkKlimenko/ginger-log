@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestParam
 import reactivefeign.spring.config.ReactiveFeignClient
 import reactor.core.publisher.Mono
 
@@ -16,6 +17,7 @@ interface ApiClient {
     @PostMapping("/client/api/v1/log/enabled")
     fun postEnabled(
         @RequestHeader headers: Map<String, String>,
+        @RequestParam param: String,
         @RequestBody request: TestEntity
     ): Mono<TestEntity>
 

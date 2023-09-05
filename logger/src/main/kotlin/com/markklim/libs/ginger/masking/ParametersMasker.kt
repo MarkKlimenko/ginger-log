@@ -12,28 +12,32 @@ class ParametersMasker {
             return params
         }
 
-        val mutableParams: MutableMap<String, String> = params.toMutableMap()
+        val mutableParams: MutableMap<String, Pair<String, String>> = params.entries
+            .associate { it.key.lowercase() to it.toPair() }
+            .toMutableMap()
 
         rules.forEach { rule ->
             maskForRule(mutableParams, rule)
         }
 
-        return mutableParams
+        return mutableParams.entries
+            .associate { it.value.first to it.value.second }
     }
 
     private fun maskForRule(
-        mutableParams: MutableMap<String, String>,
+        mutableParams: MutableMap<String, Pair<String, String>>,
         rule: LoggingProperties.LoggedEntitySettings.MaskedPropertyEntity
     ) {
-        val requiredParam: String? = mutableParams[rule.property]
+        val ruleProperty: String = rule.property.lowercase()
+        val requiredParamPair: Pair<String, String>? = mutableParams[ruleProperty]
 
-        if (requiredParam != null) {
+        if (requiredParamPair != null) {
             if (rule.valuePattern != null) {
-                if (rule.valuePattern.toRegex().matches(requiredParam)) {
-                    mutableParams[rule.property] = rule.substitutionValue
+                if (rule.valuePattern.toRegex(RegexOption.IGNORE_CASE).matches(requiredParamPair.second)) {
+                    mutableParams[ruleProperty] = Pair(requiredParamPair.first, rule.substitutionValue)
                 }
             } else {
-                mutableParams[rule.property] = rule.substitutionValue
+                mutableParams[ruleProperty] = Pair(requiredParamPair.first, rule.substitutionValue)
             }
         }
     }

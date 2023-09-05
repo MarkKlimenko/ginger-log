@@ -25,7 +25,7 @@ class ParametersExtractor(
         uri = requestUri
     )
 
-    fun getHeadersFields(headers: Map<String, List<String>>): Map<String, String> =
+    fun getHeadersFields(headers: Map<String, Collection<String>>): Map<String, String> =
         headerParamsExtractor.extract(headers)
 
     fun getQueryParamsFields(params: Map<String, List<String>>): Map<String, String> =

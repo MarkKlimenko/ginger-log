@@ -85,10 +85,10 @@ class ControllerTest : WebIntegrationTest() {
             HTTP_RESP_B : POST    /api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
             """.trimIndent()
         )
-
+        */
         output.containsLog(
             """
-            FEIGN_REQ   : POST    /client/api/v1/log/enabled : headers={"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"}
+            FEIGN_REQ   : POST    /client/api/v1/log/enabled : headers={"auth-info":"info info","authorization":"a***","Content-Type":"application/json"} queryParams={"param":"paramValue"}
             """.trimIndent()
         )
 
@@ -100,7 +100,7 @@ class ControllerTest : WebIntegrationTest() {
 
         output.containsLog(
             """
-            FEIGN_RESP  : POST    /client/api/v1/log/enabled : code=200 headers={"Content-Type":"application/json","Vary":"Accept-Encoding, User-Agent","Transfer-Encoding":"chunked"}
+            FEIGN_RESP  : POST    /client/api/v1/log/enabled : code=200 headers={"content-encoding":"gzip","content-type":"application/json","transfer-encoding":"chunked","vary":"Accept-Encoding, User-Agent"}
             """.trimIndent()
         )
 
@@ -108,7 +108,7 @@ class ControllerTest : WebIntegrationTest() {
             """
             FEIGN_RESP_B: POST    /client/api/v1/log/enabled : body={"login":"loginValue","accessToken":"maskedAccessToken","userInfo":"infoValue","refreshToken":"maskedRefreshToken"}
             """.trimIndent()
-        )*/
+        )
     }
 
     @Test
@@ -146,7 +146,14 @@ class ControllerTest : WebIntegrationTest() {
 
         output.containsLog(
             """
-            FEIGN_REQ   : GET     /client/api/v1/log/enabled : headers={"Authorization":"a***"}
+            HTTP_RESP   : GET     /api/v1/log/enabled :
+            """.trimIndent()
+        )
+        */
+
+        output.containsLog(
+            """
+            FEIGN_REQ   : GET     /client/api/v1/log/enabled : headers={"authorization":"a***"}
             """.trimIndent()
         )
 
@@ -156,11 +163,11 @@ class ControllerTest : WebIntegrationTest() {
             """.trimIndent()
         )
 
-        output.containsLog(
+        output.notContainsLog(
             """
-            HTTP_RESP   : GET     /api/v1/log/enabled :
+            FEIGN_RESP_B
             """.trimIndent()
-        )*/
+        )
     }
 
     @Test

@@ -13,7 +13,7 @@ class TestService(
     suspend fun postEnabled(
         headers: Map<String, String>,
         request: TestEntity
-    ): TestEntity = apiClient.postEnabled(headers, request).awaitSingle()
+    ): TestEntity = apiClient.postEnabled(headers, "value2", request).awaitSingle()
 
     suspend fun getEnabled(
         headers: Map<String, String>

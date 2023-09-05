@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
 class BodyParametersExtractor(
     private val properties: WebLoggingProperties,
     private val loggingDecisionComponent: WebLoggingDecisionComponent,
-    private val serverCodecConfigurer: ServerCodecConfigurer,
+    private val serverCodecConfigurer: ServerCodecConfigurer?,
     private val logger: Logger,
 ) {
     fun isRequestBodyLoggingEnabled(requestUri: String): Boolean {
@@ -59,7 +59,7 @@ class BodyParametersExtractor(
         var body = this
 
         properties.body.masked.forEach {
-            body = body.replace(it.pattern.toRegex(), it.substitutionValue)
+            body = body.replace(it.pattern.toRegex(RegexOption.IGNORE_CASE), it.substitutionValue)
         }
 
         return body
@@ -67,6 +67,11 @@ class BodyParametersExtractor(
 
     @Suppress("unchecked_cast")
     fun getBodyMultipartData(request: ServerHttpRequest, exchange: ServerWebExchange): Mono<MultiValueMap<String, Part>> {
+        // TODO: refactor
+        if (serverCodecConfigurer == null) {
+            throw IllegalArgumentException("serverCodecConfigurer is not defined")
+        }
+
         if (!MULTIPART_FORM_DATA.isCompatibleWith(request.headers.contentType)) {
             return EMPTY_MULTIPART_DATA
         }

@@ -87,7 +87,7 @@ class ControllerTest : WebIntegrationTest() {
 
         output.containsLog(
             """
-            FEIGN_REQ   : POST    /client/api/v1/log/enabled : headers={"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"}
+            FEIGN_REQ   : POST    /client/api/v1/log/enabled : headers={"Authorization":"a***","Auth-Info":"info info","Content-Type":"application/json"} queryParams={"param":"value2"}
             """.trimIndent()
         )
 

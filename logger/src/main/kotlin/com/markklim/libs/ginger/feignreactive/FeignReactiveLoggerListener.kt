@@ -20,7 +20,7 @@ import reactivefeign.client.ReactiveHttpRequest
 import reactivefeign.client.ReactiveHttpResponse
 import reactivefeign.client.log.ReactiveLoggerListener
 
-class LoggerListener(
+class FeignReactiveLoggerListener(
     private val loggingDecisionComponent: WebLoggingDecisionComponent,
     private val parametersExtractor: ParametersExtractor,
     private val logger: Logger,

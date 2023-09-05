@@ -54,6 +54,7 @@ logging:
         - pattern: '"refreshToken":".*?"'
           substitutionValue: '"refreshToken":"maskedRefreshToken"'
   feign:
+    # log-full-address: true
     uris:
       include:
         - "/client/api/.*"
@@ -69,7 +70,6 @@ logging:
       exclude:
         - "OPTIONAL"
     headers:
-      # TODO: ignore case
       properties:
         include:
           - ".*"
@@ -78,6 +78,12 @@ logging:
           - "Content-Length"
           - "WebTestClient-Request-Id"
           - "Matched-Stub-Id"
+          - "user-agent"
+          - "x-b3.*"
+          - "x-b3-sampled"
+          - "accept.*"
+          - "connection"
+          - "host"
         masked:
           - property: "Authorization"
             substitution-value: "a***"

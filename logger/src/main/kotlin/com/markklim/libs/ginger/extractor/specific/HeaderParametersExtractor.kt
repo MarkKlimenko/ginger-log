@@ -10,7 +10,7 @@ class HeaderParametersExtractor(
     private val loggingDecisionComponent: WebLoggingDecisionComponent,
     private val parametersMasker: ParametersMasker,
 ) {
-    fun extract(headers: Map<String, List<String>>): Map<String, String> {
+    fun extract(headers: Map<String, Collection<String>>): Map<String, String> {
         val params: Map<String, String> = headers.mapValues { extractStringFromList(it.value) }
             .filter { loggingDecisionComponent.isHeaderAllowedForLogging(it.key) }
 

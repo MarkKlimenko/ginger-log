@@ -1,6 +1,5 @@
 package com.markklim.libs.ginger
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.markklim.libs.ginger.cache.InternalLoggingCache
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.decision.DefaultWebLoggingDecisionComponent
@@ -9,7 +8,7 @@ import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.BodyParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.HeaderParametersExtractor
 import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
-import com.markklim.libs.ginger.feignreactive.FeignReactiveLoggerListener
+import com.markklim.libs.ginger.feign.FeignLoggerListener
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
@@ -21,8 +20,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
-import org.springframework.http.codec.ServerCodecConfigurer
-import reactivefeign.client.log.ReactiveLoggerListener
 
 @Configuration
 @ConditionalOnProperty(
@@ -30,90 +27,93 @@ import reactivefeign.client.log.ReactiveLoggerListener
     havingValue = "true",
     matchIfMissing = true
 )
-@ConditionalOnClass(ReactiveLoggerListener::class)
+@ConditionalOnClass(feign.Logger::class)
 @DependsOn("loggerAutoConfiguration")
 @ComponentScan(basePackages = ["com.markklim.libs.ginger"])
 @EnableConfigurationProperties(LoggingProperties::class)
-class ReactiveFeignLoggingAutoConfiguration {
+class FeignLoggingAutoConfiguration {
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignLoggingDecisionComponent"])
-    fun reactiveFeignLoggingDecisionComponent(
+    @ConditionalOnMissingBean(name = ["feignLoggingDecisionComponent"])
+    fun feignLoggingDecisionComponent(
         loggingProperties: LoggingProperties,
         logger: Logger,
-        reactiveFeignLoggingCache: LoggingCache<String, Boolean>
+        feignLoggingCache: LoggingCache<String, Boolean>
     ): WebLoggingDecisionComponent =
         DefaultWebLoggingDecisionComponent(
             loggingProperties.feign,
             logger,
-            reactiveFeignLoggingCache
+            feignLoggingCache
         )
 
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignHeaderParamsExtractor"])
-    fun reactiveFeignHeaderParamsExtractor(
+    @ConditionalOnMissingBean(name = ["feignHeaderParamsExtractor"])
+    fun feignHeaderParamsExtractor(
         loggingProperties: LoggingProperties,
-        reactiveFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
+        feignLoggingDecisionComponent: WebLoggingDecisionComponent,
         parametersMasker: ParametersMasker,
     ) = HeaderParametersExtractor(
         loggingProperties.feign,
-        reactiveFeignLoggingDecisionComponent,
+        feignLoggingDecisionComponent,
         parametersMasker,
     )
 
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignQueryParamsExtractor"])
-    fun reactiveFeignQueryParamsExtractor(
+    @ConditionalOnMissingBean(name = ["feignQueryParamsExtractor"])
+    fun feignQueryParamsExtractor(
         loggingProperties: LoggingProperties,
-        reactiveFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
+        feignLoggingDecisionComponent: WebLoggingDecisionComponent,
         parametersMasker: ParametersMasker,
     ) = QueryParametersExtractor(
         loggingProperties.feign,
-        reactiveFeignLoggingDecisionComponent,
+        feignLoggingDecisionComponent,
         parametersMasker,
     )
 
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignBodyParamsExtractor"])
-    fun reactiveFeignBodyParamsExtractor(
+    @ConditionalOnMissingBean(name = ["feignBodyParamsExtractor"])
+    fun feignBodyParamsExtractor(
         loggingProperties: LoggingProperties,
-        reactiveFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
-        serverCodecConfigurer: ServerCodecConfigurer,
+        feignLoggingDecisionComponent: WebLoggingDecisionComponent,
         logger: Logger,
     ) = BodyParametersExtractor(
         loggingProperties.feign,
-        reactiveFeignLoggingDecisionComponent,
-        serverCodecConfigurer,
+        feignLoggingDecisionComponent,
+        // TODO: refactor
+        null,
         logger,
     )
 
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignParametersExtractor"])
-    fun reactiveFeignParametersExtractor(
-        reactiveFeignHeaderParamsExtractor: HeaderParametersExtractor,
-        reactiveFeignQueryParamsExtractor: QueryParametersExtractor,
-        reactiveFeignBodyParamsExtractor: BodyParametersExtractor,
+    @ConditionalOnMissingBean(name = ["feignParametersExtractor"])
+    fun feignParametersExtractor(
+        feignHeaderParamsExtractor: HeaderParametersExtractor,
+        feignQueryParamsExtractor: QueryParametersExtractor,
+        feignBodyParamsExtractor: BodyParametersExtractor,
     ) = ParametersExtractor(
-        reactiveFeignHeaderParamsExtractor,
-        reactiveFeignQueryParamsExtractor,
-        reactiveFeignBodyParamsExtractor,
+        feignHeaderParamsExtractor,
+        feignQueryParamsExtractor,
+        feignBodyParamsExtractor,
     )
 
     @Bean
-    @ConditionalOnMissingBean(name = ["reactiveFeignLoggingCache"])
-    fun reactiveFeignLoggingCache(): LoggingCache<String, Boolean> =
+    @ConditionalOnMissingBean(name = ["feignLoggingCache"])
+    fun feignLoggingCache(): LoggingCache<String, Boolean> =
         InternalLoggingCache()
 
     @Bean
-    fun reactiveFeignLogger(
+    fun feignLogger(
         logger: Logger,
-        reactiveFeignParametersExtractor: ParametersExtractor,
-        reactiveFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
-        objectMapper: ObjectMapper
-    ): FeignReactiveLoggerListener =
-        FeignReactiveLoggerListener(
-            reactiveFeignLoggingDecisionComponent,
-            reactiveFeignParametersExtractor,
-            logger,
-            objectMapper,
-        )
+        feignParametersExtractor: ParametersExtractor,
+        feignLoggingDecisionComponent: WebLoggingDecisionComponent,
+        loggingProperties: LoggingProperties,
+    ): feign.Logger = FeignLoggerListener(
+        feignLoggingDecisionComponent,
+        feignParametersExtractor,
+        logger,
+        loggingProperties
+    )
+
+    @Bean
+    fun feignLoggerLevel(): feign.Logger.Level =
+        feign.Logger.Level.FULL
 }

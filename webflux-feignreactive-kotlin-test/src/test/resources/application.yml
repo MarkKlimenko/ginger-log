@@ -69,7 +69,6 @@ logging:
       exclude:
         - "OPTIONAL"
     headers:
-      # TODO: ignore case
       properties:
         include:
           - ".*"

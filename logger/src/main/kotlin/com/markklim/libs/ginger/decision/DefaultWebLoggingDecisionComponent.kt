@@ -3,8 +3,7 @@ package com.markklim.libs.ginger.decision
 import com.markklim.libs.ginger.cache.LoggingCache
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.LoggingProperties.WebLoggingProperties
-import java.util.*
-import java.util.regex.Pattern
+import java.util.SplittableRandom
 
 class DefaultWebLoggingDecisionComponent(
     private val properties: WebLoggingProperties,
@@ -14,14 +13,14 @@ class DefaultWebLoggingDecisionComponent(
     private val random = SplittableRandom()
 
     override fun isLoggingAllowed(
-        requestUri: String,
+        path: String,
         requestMethod: String,
         contentType: String,
     ): Boolean =
         try {
             logProbabilityEnabled()
                 && logger.isInfoEnabled()
-                && isUriAllowedForLogging(requestUri)
+                && isUriAllowedForLogging(path)
                 && isMethodAllowedForLogging(requestMethod)
                 && isContentTypeAllowedForLogging(contentType)
         } catch (e: Throwable) {
@@ -82,8 +81,8 @@ class DefaultWebLoggingDecisionComponent(
 
     private fun isLogActionAllowed(
         value: String,
-        incPatterns: List<Pattern>,
-        excPatterns: List<Pattern>,
+        incPatterns: List<String>,
+        excPatterns: List<String>,
         cacheNamespace: String
     ): Boolean {
         if (incPatterns.isEmpty() && excPatterns.isEmpty()) {
@@ -103,12 +102,12 @@ class DefaultWebLoggingDecisionComponent(
 
     private fun calculateInclusion(
         value: String,
-        incPatterns: List<Pattern>,
-        excPatterns: List<Pattern>,
+        incPatterns: List<String>,
+        excPatterns: List<String>,
     ): Boolean {
         val included: Boolean =
             if (incPatterns.isNotEmpty()) {
-                incPatterns.find { pattern -> pattern.toRegex().matches(value) }
+                incPatterns.find { pattern -> pattern.toRegex(RegexOption.IGNORE_CASE).matches(value) }
                     ?.let { true }
                     ?: false
             } else {
@@ -119,7 +118,7 @@ class DefaultWebLoggingDecisionComponent(
             return false
         }
 
-        val excluded: Boolean = excPatterns.find { pattern -> pattern.toRegex().matches(value) }
+        val excluded: Boolean = excPatterns.find { pattern -> pattern.toRegex(RegexOption.IGNORE_CASE).matches(value) }
             ?.let { true }
             ?: false
 

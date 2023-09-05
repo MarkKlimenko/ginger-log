@@ -11,7 +11,7 @@ class TestService(
     fun postEnabled(
         headers: Map<String, String>,
         request: TestEntity
-    ): TestEntity = apiClient.postEnabled(headers, request)
+    ): TestEntity = apiClient.postEnabled(headers, "paramValue", request)
 
     fun getEnabled(
         headers: Map<String, String>
