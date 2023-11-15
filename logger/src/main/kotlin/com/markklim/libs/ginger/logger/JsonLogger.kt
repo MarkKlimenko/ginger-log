@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 class JsonLogger(
     private val objectMapper: ObjectMapper
 ) : Logger {
-    private val log: org.slf4j.Logger = LoggerFactory.getLogger(Logger::class.java)
+    private val log: org.slf4j.Logger = LoggerFactory.getLogger("logger")
 
     override fun isInfoEnabled(): Boolean = log.isInfoEnabled
 

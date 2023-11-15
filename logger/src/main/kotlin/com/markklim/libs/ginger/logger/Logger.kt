@@ -5,7 +5,6 @@ import com.markklim.libs.ginger.dao.log.http.RequestLogBody
 import com.markklim.libs.ginger.dao.log.http.ResponseLogArgs
 import com.markklim.libs.ginger.dao.log.http.ResponseLogBody
 
-// TODO: add text logger
 interface Logger {
     fun isInfoEnabled(): Boolean
 

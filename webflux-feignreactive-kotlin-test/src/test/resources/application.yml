@@ -14,7 +14,7 @@ logging:
         - "application/octet-stream"
     methods:
       exclude:
-        - "OPTIONAL"
+        - "OPTIONS"
     headers:
       properties:
         include:
@@ -67,7 +67,7 @@ logging:
         - "application/octet-stream"
     methods:
       exclude:
-        - "OPTIONAL"
+        - "OPTIONS"
     headers:
       properties:
         include:
