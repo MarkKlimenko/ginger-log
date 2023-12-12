@@ -10,9 +10,10 @@ plugins {
     id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 repositories {
@@ -28,7 +29,7 @@ dependencyManagement {
 dependencies {
     implementation project(":logger")
     implementation "org.springframework.boot:spring-boot-starter-webflux"
-    implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
+    implementation "io.micrometer:micrometer-tracing"
 
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
