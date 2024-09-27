@@ -1,14 +1,12 @@
 package com.markklim.libs.ginger.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.util.unit.DataSize
 import org.springframework.validation.annotation.Validated
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 
 @ConfigurationProperties(prefix = "logging")
-@ConstructorBinding
 @Validated
 data class LoggingProperties(
     val http: WebLoggingProperties = WebLoggingProperties(),
