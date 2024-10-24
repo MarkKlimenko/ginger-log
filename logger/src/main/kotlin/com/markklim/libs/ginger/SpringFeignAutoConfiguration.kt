@@ -68,11 +68,11 @@ class SpringFeignAutoConfiguration {
     @ConditionalOnMissingBean(name = ["springFeignBodyParamsExtractor"])
     fun springFeignBodyParamsExtractor(
         loggingProperties: LoggingProperties,
-        feignLoggingDecisionComponent: WebLoggingDecisionComponent,
+        springFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
         logger: Logger,
     ) = BodyParametersExtractor(
         loggingProperties.feign,
-        feignLoggingDecisionComponent,
+        springFeignLoggingDecisionComponent,
         null,
         logger,
     )
