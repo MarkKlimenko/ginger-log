@@ -1,0 +1,3 @@
+client:
+  api-client:
+    url: http://fakeUrl

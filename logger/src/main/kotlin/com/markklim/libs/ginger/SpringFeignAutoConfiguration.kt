@@ -18,12 +18,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
 
 @Configuration
+@DependsOn("loggerAutoConfiguration")
 @ConditionalOnMissingBean(WebClientLogging::class)
-//@DependsOn("loggerAutoConfiguration")
-@ComponentScan(basePackages = ["com.markklim.libs.ginger"])
 @EnableConfigurationProperties(LoggingProperties::class)
+@ComponentScan(basePackages = ["com.markklim.libs.ginger"])
 class SpringFeignAutoConfiguration {
 
     @Bean

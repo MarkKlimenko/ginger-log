@@ -50,31 +50,15 @@ class WebClientLoggingImpl(
 
             logger.info(reqLog)
 
-            next
-                .exchange(request)
+            next.exchange(request)
                 .doOnNext { response ->
                     val respLog = ResponseLogArgs(
-                        SPRING_FEIGN_RESP,
-                        commonLogArgs,
-                        response?.statusCode()?.toString(),
-                        response.headers().asHttpHeaders().toSingleValueMap()
+                        type = SPRING_FEIGN_RESP,
+                        common = commonLogArgs,
+                        code = response?.statusCode()?.toString(),
+                        headers = parametersExtractor.getHeadersFields(response.headers().asHttpHeaders())
                     )
                     logger.info(respLog)
                 }
         }
-
-
-    private fun log() {
-//        if (body == null || !parametersExtractor.isRequestBodyLoggingEnabled(path)) {
-//            return
-//        }
-//
-//        val bodyLog = RequestLogBody(
-//            type = type.logTypeB,
-//            common = commonLogArgs,
-//            body = serializeBodyValue(body)
-//        )
-//
-//        logger.info(bodyLog)
-    }
 }
