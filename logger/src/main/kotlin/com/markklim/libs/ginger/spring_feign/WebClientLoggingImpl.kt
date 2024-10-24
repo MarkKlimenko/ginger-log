@@ -10,6 +10,7 @@ import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import com.markklim.libs.ginger.properties.LoggingProperties
+import org.slf4j.MDC
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
@@ -29,6 +30,8 @@ class WebClientLoggingImpl(
     //TODO Придумать как логировать тело запроса
     override fun builder(): WebClient.Builder = WebClient.builder()
         .filter { request, next ->
+            val traceInfo: Map<String, String>? = MDC.getCopyOfContextMap()
+
             val path: String = request.url().path ?: "/"
             val method = request.method().name()
             val contentType = request.headers()[HttpHeaders.CONTENT_TYPE]?.first() ?: EMPTY_VALUE
@@ -52,6 +55,9 @@ class WebClientLoggingImpl(
 
             next.exchange(request)
                 .doOnNext { response ->
+                    traceInfo?.let {
+                        MDC.setContextMap(it)
+                    }
                     val respLog = ResponseLogArgs(
                         type = SPRING_FEIGN_RESP,
                         common = commonLogArgs,
