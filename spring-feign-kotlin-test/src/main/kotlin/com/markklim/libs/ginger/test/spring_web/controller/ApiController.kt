@@ -1,7 +1,10 @@
 package com.markklim.libs.ginger.test.spring_web.controller
 
+import com.markklim.libs.ginger.test.spring_web.model.RequestModel
 import com.markklim.libs.ginger.test.spring_web.service.ApiService
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -24,4 +27,10 @@ class ApiController(
         @RequestHeader headers: Map<String, String>,
         @RequestParam params: Map<String, String>
     ) = apiService.getDisabled(headers, params)
+
+    @PostMapping("enabled")
+    suspend fun postEnabled(@RequestBody body: RequestModel) = apiService.postEnabled(body)
+
+    @PostMapping("disabledBody")
+    suspend fun postDisabled(@RequestBody body: RequestModel) = apiService.postDisabled(body)
 }

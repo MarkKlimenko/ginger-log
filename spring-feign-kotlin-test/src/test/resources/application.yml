@@ -22,6 +22,14 @@ logging:
           - property: "maskedQuery"
             value-pattern: ".*"
             substitution-value: "a***"
+    body:
+      enabled: true
+      masked:
+        - pattern: '"maskedParam":".*?"'
+          substitutionValue: '"maskedParam":"maskedParamValue"'
+      threshold: "100B"
+      uris.exclude:
+        - "/disabledBody"
 
 client:
   api-client:

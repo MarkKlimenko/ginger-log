@@ -99,11 +99,9 @@ class SpringFeignAutoConfiguration {
         logger: Logger,
         springFeignParametersExtractor: ParametersExtractor,
         springFeignLoggingDecisionComponent: WebLoggingDecisionComponent,
-        loggingProperties: LoggingProperties,
     ): WebClientLogging = WebClientLoggingImpl(
         springFeignLoggingDecisionComponent,
         springFeignParametersExtractor,
         logger,
-        loggingProperties
     )
 }

@@ -1,7 +1,7 @@
 package com.markklim.libs.ginger.test.spring_web.configuration
 
-import com.markklim.libs.ginger.test.spring_web.client.ApiClient
 import com.markklim.libs.ginger.spring_feign.WebClientLogging
+import com.markklim.libs.ginger.test.spring_web.client.ApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
