@@ -29,11 +29,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     implementation "io.projectreactor.kotlin:reactor-kotlin-extensions:$kotlinReactorVersion"
 
-    compileOnly "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
-    compileOnly "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
-    implementation 'org.eclipse.jetty:jetty-reactive-httpclient:3.0.9'
+    implementation "org.eclipse.jetty:jetty-reactive-httpclient:$jettyHttpClientVersion"
 
+    compileOnly "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     compileOnly "com.playtika.reactivefeign:feign-reactor-webclient:$feignReactorVersion"
     compileOnly "com.playtika.reactivefeign:feign-reactor-cloud:$feignReactorVersion"
     compileOnly "com.playtika.reactivefeign:feign-reactor-spring-configuration:$feignReactorVersion"

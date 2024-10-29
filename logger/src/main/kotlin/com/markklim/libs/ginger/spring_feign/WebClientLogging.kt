@@ -7,7 +7,7 @@ import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
 import org.eclipse.jetty.client.HttpClient
-import org.eclipse.jetty.client.api.Request
+import org.eclipse.jetty.client.Request
 import org.slf4j.MDC
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.reactive.JettyClientHttpConnector
@@ -80,23 +80,31 @@ class WebClientLoggingImpl(
         }
 
         onRequestContent { _, content ->
-            if (!loggingAllowed() || content.array().size <= 1) return@onRequestContent
+            if (!loggingAllowed() || content.capacity() <= 1) return@onRequestContent
+
+            val byteArray = ByteArray(content.capacity()).apply {
+                content.get(this)
+            }
 
             val log = RequestLogBody(
                 SPRING_FEIGN_REQ_B,
                 parametersExtractor.getCommonFields(path, method),
-                parametersExtractor.getBodyField(String(content.array()))
+                parametersExtractor.getBodyField(String(byteArray))
             )
             logger.info(log)
         }
 
         onResponseContent { _, content ->
-            if (!loggingAllowed() || content.array().size <= 1) return@onResponseContent
+            if (!loggingAllowed() || content.capacity() <= 1) return@onResponseContent
+
+            val byteArray = ByteArray(content.capacity()).apply {
+                content.get(this)
+            }
 
             val log = ResponseLogBody(
                 SPRING_FEIGN_RESP_B,
                 parametersExtractor.getCommonFields(path, method),
-                parametersExtractor.getBodyField(String(content.array()))
+                parametersExtractor.getBodyField(String(byteArray))
             )
             logger.info(log)
         }

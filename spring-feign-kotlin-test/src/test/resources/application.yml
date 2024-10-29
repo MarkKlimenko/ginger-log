@@ -1,4 +1,6 @@
 logging:
+  level:
+    WireMock: ERROR
   http.enabled: false
   feign:
     uris.exclude:
