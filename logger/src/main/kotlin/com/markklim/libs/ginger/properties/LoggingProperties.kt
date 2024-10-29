@@ -53,7 +53,7 @@ data class LoggingProperties(
         var enabled: Boolean = false,
         val uris: Patterns = Patterns(),
         val binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
-        val threshold: DataSize? = DataSize.ofKilobytes(DEFAULT_BODY_SIZE),
+        val threshold: DataSize = DataSize.ofKilobytes(DEFAULT_BODY_SIZE),
         val masked: List<MaskedBodyEntity> = emptyList()
     ) {
         data class MaskedBodyEntity(

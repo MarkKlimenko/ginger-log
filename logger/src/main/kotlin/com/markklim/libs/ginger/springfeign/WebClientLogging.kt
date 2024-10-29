@@ -13,6 +13,7 @@ import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
+import com.markklim.libs.ginger.properties.LoggingProperties
 import org.apache.logging.log4j.ThreadContext
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.client.Request
@@ -22,7 +23,6 @@ import org.springframework.http.client.reactive.JettyClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
-import java.nio.ByteBuffer
 
 interface WebClientLogging {
     fun builder(): WebClient.Builder
@@ -32,6 +32,7 @@ class WebClientLoggingImpl(
     private val loggingDecisionComponent: WebLoggingDecisionComponent,
     private val parametersExtractor: ParametersExtractor,
     private val logger: Logger,
+    private val loggingProperties: LoggingProperties
 ) : WebClientLogging {
 
     private val httpClient: HttpClient = object : HttpClient() {
@@ -48,6 +49,7 @@ class WebClientLoggingImpl(
             val contentType = request.headers()[HttpHeaders.CONTENT_TYPE]?.first() ?: EMPTY_VALUE
 
             if (!loggingDecisionComponent.isLoggingAllowed(path, method, contentType)) {
+                @Suppress("LabeledExpression")
                 return@filter next.exchange(request)
             }
 
@@ -79,12 +81,14 @@ class WebClientLoggingImpl(
                 }
         }
 
+    @Suppress("ComplexMethod")
     private fun Request.logBody(): Request {
 
         val mdcContext = mapOf<String, String>(
             "traceId" to ThreadContext.get("traceId"),
             "spanId" to ThreadContext.get("spanId")
         )
+        val responseBuffer = StringBuilder()
 
         fun loggingAllowed(): Boolean {
             val contentType = headers[HttpHeaders.CONTENT_TYPE] ?: EMPTY_VALUE
@@ -92,30 +96,63 @@ class WebClientLoggingImpl(
                     parametersExtractor.isRequestBodyLoggingEnabled(path)
         }
 
-        fun log(logType: LogType, buffer: ByteBuffer) {
-            if (!loggingAllowed() || buffer.capacity() <= 1) return
-
+        fun log(logType: LogType, logString: String) {
             mdcContext.forEach { (key, value) ->
                 MDC.put(key, value)
-            }
-            val byteArray = ByteArray(buffer.capacity()).apply {
-                buffer.get(this)
             }
             val log = RequestLogBody(
                 logType,
                 parametersExtractor.getCommonFields(path, method),
-                parametersExtractor.getBodyField(String(byteArray))
+                parametersExtractor.getBodyField(logString)
             )
             logger.info(log)
         }
 
         onRequestContent { _, content ->
-            log(SPRING_FEIGN_REQ_B, content)
+            if (!loggingAllowed() || content.capacity() <= 1) {
+                @Suppress("LabeledExpression")
+                return@onRequestContent
+            }
+
+            val byteArray = ByteArray(content.capacity()).apply {
+                content.get(this)
+            }
+            log(SPRING_FEIGN_REQ_B, String(byteArray))
         }
 
         onResponseContent { _, content ->
-            log(SPRING_FEIGN_RESP_B, content)
+            if (!loggingAllowed() || content.capacity() <= 1) {
+                @Suppress("LabeledExpression")
+                return@onResponseContent
+            }
+
+            val byteArray = ByteArray(content.capacity()).apply {
+                content.get(this)
+            }
+
+            val threshold = loggingProperties.feign.body.threshold.toBytes().toInt()
+            val appendLength = threshold - responseBuffer.length
+            if (appendLength > 0) {
+                String(byteArray)
+                    .toCharArray()
+                    .joinTo(
+                        buffer = responseBuffer,
+                        separator = "",
+                        limit = appendLength,
+                        truncated = " [...]"
+                    )
+            }
         }
+
+        onComplete {
+            if (loggingAllowed() || responseBuffer.isNotEmpty()) {
+                log(
+                    SPRING_FEIGN_RESP_B,
+                    responseBuffer.toString()
+                )
+            }
+        }
+
         return this
     }
 }
