@@ -1,6 +1,6 @@
-package com.markklim.libs.ginger.test.spring_web.client
+package com.markklim.libs.ginger.test.springfeign.client
 
-import com.markklim.libs.ginger.test.spring_web.model.RequestModel
+import com.markklim.libs.ginger.test.springfeign.model.RequestModel
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestParam

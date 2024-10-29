@@ -1,7 +1,7 @@
-package com.markklim.libs.ginger.test.spring_web.configuration
+package com.markklim.libs.ginger.test.springfeign.configuration
 
-import com.markklim.libs.ginger.spring_feign.WebClientLogging
-import com.markklim.libs.ginger.test.spring_web.client.ApiClient
+import com.markklim.libs.ginger.springfeign.WebClientLogging
+import com.markklim.libs.ginger.test.springfeign.client.ApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -17,8 +17,8 @@ class ClientConfiguration(@Value("\${client.api-client.url}") private val client
 
     @Bean
     fun apiClient(): ApiClient =
-        HttpServiceProxyFactory.builder(
-            WebClientAdapter.forClient(
+        HttpServiceProxyFactory.builderFor(
+            WebClientAdapter.create(
                 webClientLogging.builder()
                     .baseUrl(clientApiUrl)
                     .build()

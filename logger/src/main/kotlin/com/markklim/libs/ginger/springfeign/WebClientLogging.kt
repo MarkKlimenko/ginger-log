@@ -1,7 +1,14 @@
-package com.markklim.libs.ginger.spring_feign
+package com.markklim.libs.ginger.springfeign
 
-import com.markklim.libs.ginger.dao.log.http.*
-import com.markklim.libs.ginger.dao.log.http.LogType.*
+import com.markklim.libs.ginger.dao.log.http.CommonLogArgs
+import com.markklim.libs.ginger.dao.log.http.LogType
+import com.markklim.libs.ginger.dao.log.http.LogType.SPRING_FEIGN_REQ
+import com.markklim.libs.ginger.dao.log.http.LogType.SPRING_FEIGN_REQ_B
+import com.markklim.libs.ginger.dao.log.http.LogType.SPRING_FEIGN_RESP
+import com.markklim.libs.ginger.dao.log.http.LogType.SPRING_FEIGN_RESP_B
+import com.markklim.libs.ginger.dao.log.http.RequestLogArgs
+import com.markklim.libs.ginger.dao.log.http.ResponseLogArgs
+import com.markklim.libs.ginger.dao.log.http.RequestLogBody
 import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
@@ -14,7 +21,7 @@ import org.springframework.http.client.reactive.JettyClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
-
+import java.nio.ByteBuffer
 
 interface WebClientLogging {
     fun builder(): WebClient.Builder
@@ -79,34 +86,25 @@ class WebClientLoggingImpl(
                     parametersExtractor.isRequestBodyLoggingEnabled(path)
         }
 
-        onRequestContent { _, content ->
-            if (!loggingAllowed() || content.capacity() <= 1) return@onRequestContent
-
-            val byteArray = ByteArray(content.capacity()).apply {
-                content.get(this)
+        fun log(logType: LogType, buffer: ByteBuffer) {
+            if (!loggingAllowed() || buffer.capacity() <= 1) return
+            val byteArray = ByteArray(buffer.capacity()).apply {
+                buffer.get(this)
             }
-
             val log = RequestLogBody(
-                SPRING_FEIGN_REQ_B,
+                logType,
                 parametersExtractor.getCommonFields(path, method),
                 parametersExtractor.getBodyField(String(byteArray))
             )
             logger.info(log)
         }
 
+        onRequestContent { _, content ->
+            log(SPRING_FEIGN_REQ_B, content)
+        }
+
         onResponseContent { _, content ->
-            if (!loggingAllowed() || content.capacity() <= 1) return@onResponseContent
-
-            val byteArray = ByteArray(content.capacity()).apply {
-                content.get(this)
-            }
-
-            val log = ResponseLogBody(
-                SPRING_FEIGN_RESP_B,
-                parametersExtractor.getCommonFields(path, method),
-                parametersExtractor.getBodyField(String(byteArray))
-            )
-            logger.info(log)
+            log(SPRING_FEIGN_RESP_B, content)
         }
         return this
     }

@@ -11,8 +11,8 @@ import com.markklim.libs.ginger.extractor.specific.QueryParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
-import com.markklim.libs.ginger.spring_feign.WebClientLogging
-import com.markklim.libs.ginger.spring_feign.WebClientLoggingImpl
+import com.markklim.libs.ginger.springfeign.WebClientLogging
+import com.markklim.libs.ginger.springfeign.WebClientLoggingImpl
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean

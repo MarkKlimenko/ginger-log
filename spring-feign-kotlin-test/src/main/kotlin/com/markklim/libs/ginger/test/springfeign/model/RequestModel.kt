@@ -1,4 +1,4 @@
-package com.markklim.libs.ginger.test.spring_web.model
+package com.markklim.libs.ginger.test.springfeign.model
 
 data class RequestModel(
     val param1: String = "param1",

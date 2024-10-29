@@ -35,6 +35,7 @@ private const val GROUP_EQ_INDEX = 2
 private const val GROUP_VALUE_INDEX = 3
 
 // TODO: refactor parseQueryParams
+@Suppress("NestedBlockDepth")
 fun URI.parseQueryParams(): MultiValueMap<String, String> {
     val queryParams: MultiValueMap<String, String> = LinkedMultiValueMap()
     val query = this.rawQuery

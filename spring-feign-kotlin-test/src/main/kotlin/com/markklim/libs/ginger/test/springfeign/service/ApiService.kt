@@ -1,7 +1,7 @@
-package com.markklim.libs.ginger.test.spring_web.service
+package com.markklim.libs.ginger.test.springfeign.service
 
-import com.markklim.libs.ginger.test.spring_web.client.ApiClient
-import com.markklim.libs.ginger.test.spring_web.model.RequestModel
+import com.markklim.libs.ginger.test.springfeign.client.ApiClient
+import com.markklim.libs.ginger.test.springfeign.model.RequestModel
 import org.springframework.stereotype.Service
 
 @Service

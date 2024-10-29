@@ -1,4 +1,4 @@
-package com.markklim.libs.ginger.test.spring_web
+package com.markklim.libs.ginger.test.springfeign
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import org.awaitility.Awaitility

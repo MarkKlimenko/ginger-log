@@ -1,8 +1,8 @@
-package com.markklim.libs.ginger.test.spring_web
+package com.markklim.libs.ginger.test.springfeign
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.markklim.libs.ginger.test.spring_web.model.RequestModel
+import com.markklim.libs.ginger.test.springfeign.model.RequestModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

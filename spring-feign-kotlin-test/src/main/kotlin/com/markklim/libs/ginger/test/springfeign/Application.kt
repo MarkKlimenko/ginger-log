@@ -1,6 +1,6 @@
-package com.markklim.libs.ginger.test.spring_web
+package com.markklim.libs.ginger.test.springfeign
 
-import com.markklim.libs.ginger.test.spring_web.service.ApiService
+import com.markklim.libs.ginger.test.springfeign.service.ApiService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 

@@ -1,7 +1,7 @@
-package com.markklim.libs.ginger.test.spring_web.controller
+package com.markklim.libs.ginger.test.springfeign.controller
 
-import com.markklim.libs.ginger.test.spring_web.model.RequestModel
-import com.markklim.libs.ginger.test.spring_web.service.ApiService
+import com.markklim.libs.ginger.test.springfeign.model.RequestModel
+import com.markklim.libs.ginger.test.springfeign.service.ApiService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

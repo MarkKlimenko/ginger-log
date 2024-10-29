@@ -6,6 +6,8 @@ import org.springframework.validation.annotation.Validated
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 
+const val DEFAULT_BODY_SIZE = 10L
+
 @ConfigurationProperties(prefix = "logging")
 @Validated
 data class LoggingProperties(
@@ -51,7 +53,7 @@ data class LoggingProperties(
         var enabled: Boolean = false,
         val uris: Patterns = Patterns(),
         val binaryContentLogging: BinaryContentLoggingStatus = BinaryContentLoggingStatus.DISABLED,
-        val threshold: DataSize? = DataSize.ofKilobytes(10),
+        val threshold: DataSize? = DataSize.ofKilobytes(DEFAULT_BODY_SIZE),
         val masked: List<MaskedBodyEntity> = emptyList()
     ) {
         data class MaskedBodyEntity(
