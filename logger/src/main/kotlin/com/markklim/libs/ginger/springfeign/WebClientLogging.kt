@@ -13,6 +13,7 @@ import com.markklim.libs.ginger.decision.WebLoggingDecisionComponent
 import com.markklim.libs.ginger.extractor.ParametersExtractor
 import com.markklim.libs.ginger.logger.Logger
 import com.markklim.libs.ginger.properties.EMPTY_VALUE
+import org.apache.logging.log4j.ThreadContext
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.client.Request
 import org.slf4j.MDC
@@ -65,8 +66,8 @@ class WebClientLoggingImpl(
 
             next.exchange(request)
                 .doOnNext { response ->
-                    traceInfo?.let {
-                        MDC.setContextMap(it)
+                    traceInfo?.forEach { (key, value) ->
+                        MDC.put(key, value)
                     }
                     val respLog = ResponseLogArgs(
                         type = SPRING_FEIGN_RESP,
@@ -80,6 +81,11 @@ class WebClientLoggingImpl(
 
     private fun Request.logBody(): Request {
 
+        val mdcContext = mapOf<String, String>(
+            "traceId" to ThreadContext.get("traceId"),
+            "spanId" to ThreadContext.get("spanId")
+        )
+
         fun loggingAllowed(): Boolean {
             val contentType = headers[HttpHeaders.CONTENT_TYPE] ?: EMPTY_VALUE
             return loggingDecisionComponent.isLoggingAllowed(path, method, contentType) &&
@@ -88,6 +94,10 @@ class WebClientLoggingImpl(
 
         fun log(logType: LogType, buffer: ByteBuffer) {
             if (!loggingAllowed() || buffer.capacity() <= 1) return
+
+            mdcContext.forEach { (key, value) ->
+                MDC.put(key, value)
+            }
             val byteArray = ByteArray(buffer.capacity()).apply {
                 buffer.get(this)
             }
