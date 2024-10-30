@@ -2,4 +2,4 @@ com.markklim.libs.ginger.LoggerAutoConfiguration
 com.markklim.libs.ginger.WebfluxLoggingAutoConfiguration
 com.markklim.libs.ginger.ReactiveFeignLoggingAutoConfiguration
 com.markklim.libs.ginger.FeignLoggingAutoConfiguration
-com.markklim.libs.ginger.SpringFeignAutoConfiguration
+com.markklim.libs.ginger.SpringClientAutoConfiguration
