@@ -13,15 +13,18 @@ import com.markklim.libs.ginger.masking.ParametersMasker
 import com.markklim.libs.ginger.properties.LoggingProperties
 import com.markklim.libs.ginger.springclient.WebClientLogging
 import com.markklim.libs.ginger.springclient.WebClientLoggingImpl
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
+import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 @DependsOn("loggerAutoConfiguration")
+@ConditionalOnClass(WebClient.Builder::class)
 @ConditionalOnMissingBean(WebClientLogging::class)
 @EnableConfigurationProperties(LoggingProperties::class)
 @ComponentScan(basePackages = ["com.markklim.libs.ginger"])

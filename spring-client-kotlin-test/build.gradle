@@ -8,10 +8,8 @@ plugins {
     id "com.markklim.popcorn.quality" version "$codeQualityVersion"
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = '17'
-    }
+java {
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {

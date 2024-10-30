@@ -80,7 +80,7 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
 
         assertEquals(200, result.statusCode.value())
 
-        output.containsLog("SPRING_FEIGN_REQ: GET     /enabled :")
+        output.containsLog("SPRING_CLIENT_REQ: GET     /enabled :")
 
         output.containsLog(""""header":"header"""")
         output.notContainsLog(excludedHeaderName)
@@ -90,7 +90,7 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
         output.notContainsLog(excludedQueryName)
         output.containsLog(""""$maskedQueryName":"$maskedQueryToBe"""")
 
-        output.containsLog("SPRING_FEIGN_RESP: GET     /enabled : code=200 OK")
+        output.containsLog("SPRING_CLIENT_RESP: GET     /enabled : code=200 OK")
         output.containsLog("\"TestHeaderKey\":\"TestHeaderValue\"")
     }
 
@@ -116,8 +116,8 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
 
         assertEquals(200, result.statusCode.value())
 
-        output.notContainsLog("SPRING_FEIGN_REQ")
-        output.notContainsLog("SPRING_FEIGN_RESP")
+        output.notContainsLog("SPRING_CLIENT_REQ")
+        output.notContainsLog("SPRING_CLIENT_RESP")
     }
 
     @Test
@@ -146,12 +146,12 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
 
         output.containsLog(
             """
-            SPRING_FEIGN_REQ_B: POST    /enabled : body={"param1":"param1","maskedParam":"maskedParamValue","inner":{"param3":"param3"}}
+            SPRING_CLIENT_REQ_B: POST    /enabled : body={"param1":"param1","maskedParam":"maskedParamValue","inner":{"param3":"param3"}}
         """.trimIndent()
         )
         output.containsLog(
             """
-            SPRING_FEIGN_RESP_B: POST    /enabled : body={"param1":"param1","maskedParam":"maskedParamValue"}
+            SPRING_CLIENT_RESP_B: POST    /enabled : body={"param1":"param1","maskedParam":"maskedParamValue"}
         """.trimIndent()
         )
     }
@@ -179,8 +179,8 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
 
         assertEquals(200, result.statusCode.value())
 
-        output.containsLog("SPRING_FEIGN_REQ_B: POST    /enabled : body={\"param1\":\"${"a".repeat(89)} [...]")
-        output.containsLog("SPRING_FEIGN_RESP_B: POST    /enabled : body=\"${"a".repeat(99)} [...]")
+        output.containsLog("SPRING_CLIENT_REQ_B: POST    /enabled : body={\"param1\":\"${"a".repeat(89)} [...]")
+        output.containsLog("SPRING_CLIENT_RESP_B: POST    /enabled : body=\"${"a".repeat(99)} [...]")
     }
 
     @Test
@@ -205,10 +205,10 @@ class ControllerTest(val output: CapturedOutput) : WebIntegrationTest() {
 
         assertEquals(200, result.statusCode.value())
 
-        output.containsLog("SPRING_FEIGN_REQ")
-        output.containsLog("SPRING_FEIGN_RESP")
-        output.notContainsLog("SPRING_FEIGN_REQ_B")
-        output.notContainsLog("SPRING_FEIGN_RESP_B")
+        output.containsLog("SPRING_CLIENT_REQ")
+        output.containsLog("SPRING_CLIENT_RESP")
+        output.notContainsLog("SPRING_CLIENT_REQ_B")
+        output.notContainsLog("SPRING_CLIENT_RESP_B")
     }
 }
 
