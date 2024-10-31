@@ -35,7 +35,14 @@ class BodyParametersExtractor(
         return loggingDecisionComponent.isRequestBodyByUrlAllowedForLogging(requestUri)
     }
 
-    fun getBodyField(body: String): String = body.maskBody()
+    fun getBodyField(body: String): String {
+        val bodyLength = body.length
+        val threshold: Int = properties.body.threshold?.toBytes()?.toInt() ?: bodyLength
+        val bytesCount: Int = Integer.min(threshold, bodyLength)
+        return body.substring(0, bytesCount)
+            .addThresholdPostfix(threshold, bodyLength)
+            .maskBody()
+    }
 
     fun getBodyField(buffer: DataBuffer): String {
         val readableByteCount: Int = buffer.readableByteCount()
@@ -66,7 +73,10 @@ class BodyParametersExtractor(
     }
 
     @Suppress("unchecked_cast")
-    fun getBodyMultipartData(request: ServerHttpRequest, exchange: ServerWebExchange): Mono<MultiValueMap<String, Part>> {
+    fun getBodyMultipartData(
+        request: ServerHttpRequest,
+        exchange: ServerWebExchange
+    ): Mono<MultiValueMap<String, Part>> {
         // TODO: refactor
         if (serverCodecConfigurer == null) {
             throw IllegalArgumentException("serverCodecConfigurer is not defined")

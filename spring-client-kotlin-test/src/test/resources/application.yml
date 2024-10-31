@@ -1,0 +1,38 @@
+logging:
+  level:
+    WireMock: ERROR
+  http.enabled: false
+  feign:
+    uris.exclude:
+        - "/disabled"
+    content-types.exclude:
+        - "application/octet-stream"
+    methods.exclude:
+        - "OPTIONAL"
+    headers:
+      properties:
+        exclude:
+          - "ExcludedHeader"
+        masked:
+          - property: "MaskedHeader"
+            substitution-value: "a***"
+    query-params:
+      properties:
+        exclude:
+          - "excludedQuery"
+        masked:
+          - property: "maskedQuery"
+            value-pattern: ".*"
+            substitution-value: "a***"
+    body:
+      enabled: true
+      masked:
+        - pattern: '"maskedParam":".*?"'
+          substitutionValue: '"maskedParam":"maskedParamValue"'
+      threshold: "100B"
+      uris.exclude:
+        - "/disabledBody"
+
+client:
+  api-client:
+    url: http://localhost:${wiremock.server.port}

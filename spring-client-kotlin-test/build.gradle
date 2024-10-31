@@ -1,7 +1,5 @@
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.noarg" version "$kotlinVersion"
-    id "org.jetbrains.kotlin.plugin.allopen" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
 
     id "io.spring.dependency-management" version "$springManagementVersion"
@@ -11,7 +9,6 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
@@ -27,19 +24,22 @@ dependencyManagement {
 
 dependencies {
     implementation project(":logger")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "io.micrometer:micrometer-tracing"
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
 
     implementation "org.jetbrains.kotlin:kotlin-reflect"
-
-    implementation "org.springframework.cloud:spring-cloud-starter-openfeign:$feignVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
 }
 
 test {

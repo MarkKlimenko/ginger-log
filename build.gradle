@@ -7,23 +7,25 @@ buildscript {
         // library properties
         libraryGroup = 'com.markklim.libs'
         libraryArchivesBaseName = "ginger-log"
-        libraryVersion = "2.0.0"
+        libraryVersion = "2.1.0-TEST"
 
         // versions
-        kotlinVersion = "1.7.22"
+        kotlinVersion = "1.9.25"
         kotlinReactorVersion = "1.2.2"
 
-        springBootVersion = "3.1.5"
-        springManagementVersion = "1.1.3"
-        springCloudVersion = "2022.0.3"
+        springBootVersion = "3.3.1"
+        springManagementVersion = "1.1.5"
+        springCloudVersion = "2023.0.2"
 
-        feignReactorVersion = "4.0.2"
+        feignReactorVersion = "4.2.1"
         feignVersion = "3.1.0"
 
         caffeineVersion = "3.1.6"
 
-        junitVersion = "5.8.1"
+        junitVersion = "5.9.0"
         awaitilityVersion = "4.2.0"
         codeQualityVersion = "1.2.1"
+
+        jettyHttpClientVersion = "4.0.5"
     }
 }
