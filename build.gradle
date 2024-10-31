@@ -7,7 +7,7 @@ buildscript {
         // library properties
         libraryGroup = 'com.markklim.libs'
         libraryArchivesBaseName = "ginger-log"
-        libraryVersion = "2.1.0-TEST"
+        libraryVersion = "2.1.0"
 
         // versions
         kotlinVersion = "1.9.25"
